@@ -38,7 +38,7 @@ uint8_t demultiplexerPosition;
 
 uint8_t fileNumber = 0;
 
-bool _isBuzzerDisabled = true;
+bool _isBuzzerDisabled = false;
 
 
 void setup() {
@@ -106,7 +106,7 @@ String _idMessage = "";
 
 void loop() {
 
-	demultiplexerPosition = 3;
+	demultiplexerPosition = 0;
 
 	setMultiplexer(demultiplexerPosition);
 

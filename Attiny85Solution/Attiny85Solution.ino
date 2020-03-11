@@ -3,23 +3,47 @@
  Created:	3/3/2020 1:09:44 AM
  Author:	luigi.santagada
 */
-#include <eRCaGuy_analogReadXXbit.h>
-#include <SoftwareSerial.h>
 
-SoftwareSerial softwareSerial(10, 3, false);
-//eRCaGuy_analogReadXXbit* a = new eRCaGuy_analogReadXXbit();
-// the setup function runs once when you press reset or power the board
+#define CLKOUT      1  
+#include <SoftwareSerial.h>
+unsigned long pulse = 0;
+double measure = 0.00;
+uint8_t idMessageCounter = 0;
+
+SoftwareSerial softwareSerial(99, 3, false);
+
 void setup() {
-	softwareSerial.begin(38400);
+	softwareSerial.begin(600);
+	setPWM();
+	pinMode(CLKOUT, OUTPUT);  // Set pin as output
 	analogReference(INTERNAL1V1);
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-	//float b = a->analogReadXXbit(A2, 10, 5);
-	//softwareSerial.println((2.56 /1024)*b);
-	///*softwareSerial.println(b);*/
-	/*softwareSerial.print("------");*/
-	softwareSerial.println((1.1 / 1024)*analogRead(A2) + 0.04);
-	//delay(1000);
+	delay(1000);
+	if (idMessageCounter == 100) idMessageCounter = 0;
+	if (idMessageCounter < 10) softwareSerial.print('0');
+	softwareSerial.print(idMessageCounter);
+	softwareSerial.print(measure);
+	softwareSerial.print('*');
+}
+
+void setPWM()
+{
+	OCR1C = 255; // Yields approx. 16kHz to 48kHz freq range
+	OCR1A = 127;  // 50% duty cycle
+	TCCR1 = _BV(PWM1A) | _BV(COM1A0) | _BV(COM1A1) | _BV(CS10);
+	TIMSK |= (1 << TOIE1);
+}
+
+ISR(TIMER1_OVF_vect) {              // Interrupt vector for TIMER-1 OVR which set 50% period
+	pulse++;
+	if (pulse >= 320000)
+	{
+		idMessageCounter++;
+		measure = ((1.1 / 1024)*analogRead(A2)) + 0.04;
+		pulse = 0;
+	}
+
 }

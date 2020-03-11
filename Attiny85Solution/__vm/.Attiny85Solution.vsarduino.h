@@ -78,6 +78,6 @@ typedef void *__builtin_va_list;
 #define pgm_read_float(address_short) float()
 #define pgm_read_ptr(address_short)   short()
 
-#include "Attiny85Solution.ino"
+#include "Attiny85CheckBatterySolution.ino"
 #endif
 #endif

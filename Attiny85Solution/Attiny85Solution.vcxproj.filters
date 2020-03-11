@@ -15,11 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Attiny85Solution.ino" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="__vm\.Attiny85Solution.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Attiny85CheckBatterySolution.ino" />
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C5F80730-F44F-4478-BDAE-6634EFC2CA88}</ProjectGuid>
     <RootNamespace>Attiny85Solution</RootNamespace>
-    <ProjectName>Attiny85Solution</ProjectName>
+    <ProjectName>Attiny85CheckBatterySolution</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -107,7 +107,7 @@
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Attiny85Solution.ino">
+    <None Include="Attiny85CheckBatterySolution.ino">
       <FileType>CppCode</FileType>
     </None>
   </ItemGroup>

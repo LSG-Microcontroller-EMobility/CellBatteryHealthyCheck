@@ -5,14 +5,13 @@
  Author:	luigi.santagada
 */
 #include <SoftwareSerial.h>
+String idMessageCounter = "";
+const char* idBattery[16] = {"B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16"};
 SoftwareSerial* softwareSerial = new SoftwareSerial(3, 10);
-// the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(9600);
 	softwareSerial->begin(600);
 }
-
-// the loop function runs over and over again until power down or reset
 void loop() {
 	if (softwareSerial->available() > 0)
 	{
@@ -22,7 +21,18 @@ void loop() {
 		e.trim();
 		if (e != "")
 		{
-			Serial.println(e);
+			if (!e.substring(0, 2).equals(idMessageCounter))
+			{
+				idMessageCounter = e.substring(0, 2);
+				Serial.print("Store value ID record :"); Serial.print(idMessageCounter);Serial.print(" on SD card ");
+				Serial.print("id battery : "); Serial.print(idBattery[0]);
+				Serial.print(" data aquired : "); Serial.println(e.substring(2, 6));
+			}
+			//if(e.substring(0, 2) != idMessageCounter)
+			//{
+			//	idMessageCounter = e.substring(0, 2);
+			//	//Serial.println("cambio valore");
+			//}
 		}
 	}
 

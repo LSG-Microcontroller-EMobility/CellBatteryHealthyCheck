@@ -6,16 +6,16 @@
 			All non-arduino files created by visual micro and all visual studio project or solution files can be freely deleted and are not required to compile a sketch (do not delete your own code!).
 			Note: debugger breakpoints are stored in '.sln' or '.asln' files, knowledge of last uploaded breakpoints is stored in the upload.vmps.xml file. Both files are required to continue a previous debug session without needing to compile and upload again
 	
-	Hardware: ATtiny25 (ATtiny25/45/85), Platform=avr, Package=attiny
+	Hardware: ATtiny85 (ATtiny25/45/85), Platform=avr, Package=attiny
 */
 
 #if defined(_VMICRO_INTELLISENSE)
 
 #ifndef _VSARDUINO_H_
 #define _VSARDUINO_H_
-#define __AVR_attiny25__
-#define __AVR_ATTINY25__
-#define __AVR_ATtiny25__
+#define __AVR_attiny85__
+#define __AVR_ATTINY85__
+#define __AVR_ATtiny85__
 #define F_CPU 8000000L
 #define ARDUINO 10805
 #define ARDUINO_attiny

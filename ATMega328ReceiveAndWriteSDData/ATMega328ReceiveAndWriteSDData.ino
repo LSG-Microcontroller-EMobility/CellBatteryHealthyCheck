@@ -16,9 +16,10 @@ const uint8_t numberOfBattery = 16;
 const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
 SoftwareSerial* softwareSerial = new SoftwareSerial(3, 10);
 File myFile;
+uint8_t demultiplexerPosition;
 
 void setup() {
-
+	demultiplexerPosition = 0;
 	pinMode(s0, OUTPUT);
 	pinMode(s1, OUTPUT);
 	pinMode(s2, OUTPUT);
@@ -45,24 +46,25 @@ void setup() {
 	}
 }
 
-uint8_t demultiplexerPosition;
+
 
 String idCurrentMessage = "";
+String responseString = "";
+String csvString = "";
 
 void loop() {
 	demultiplexerPosition = 0;
 
 	setMultiplexer(demultiplexerPosition);
 
-	String responseString = "";
-
-	/*String idCurrentMessage = "";*/
+	responseString = "";
 
 	responseString = getDataFromSerialBuffer();
 
-	if (responseString != "" && (!idCurrentMessage.equals(responseString.substring(0, 2))))
+	/*if (responseString != "" && (!idCurrentMessage.equals(responseString.substring(0, 2))))*/
+	if (responseString != "" && ((idCurrentMessage.compareTo(responseString.substring(0, 2)) !=0 )))
 	{
-		String csvString = "";
+		csvString = "";
 
 		csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
@@ -70,50 +72,38 @@ void loop() {
 
 		idCurrentMessage = responseString.substring(0, 2);
 
-		while (responseString.substring(0, 2).equals(idCurrentMessage))
+		demultiplexerPosition = 1;
+
+		setMultiplexer(demultiplexerPosition);
+
+		responseString = "";
+
+
+		bool condition = true;
+
+		unsigned long d = millis();
+
+		while (millis() - d < 1000)
 		{
-			++demultiplexerPosition;
-
-			setMultiplexer(demultiplexerPosition);
-
 			responseString = getDataFromSerialBuffer();
 
-			if (idCurrentMessage.equals(responseString.substring(0, 2)))
+			if (responseString != "")
 			{
+				String csvString = "";
+
 				csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
 				writeOnSDCard(csvString);
+				
 			}
 		}
-		//for (uint8_t i = 0; i < numberOfBattery; i++)
-		//{
-		//	readMux(i);
-		//	//delay(500);
-				//
-		/*Serial.print("Store value ID record :"); Serial.print(idMessageCounter);Serial.print(" on SD card ");
-		Serial.print("id battery : "); Serial.print(idBattery[0]);
-		Serial.print(" data aquired : "); Serial.println(e.substring(2, 6));*/
-		//	/*csvString = responseString.substring(0, 2) + ";" + String(idBattery[i]) + ";" + responseString.substring(2, 6);
-		//	Serial.println(csvString);
-		//	writeOnSDCard(csvString);*/
-		//	//}
-		////}
-		////if(e.substring(0, 2) != idMessageCounter)
-		////{
-		////	idMessageCounter = e.substring(0, 2);
-		////	//Serial.println("cambio valore");
-		////}
-		//}
-		//if (i == (numberOfBattery - 1))
-		//{
-		//	idCurrentMessage = responseString.substring(0, 2);
-		//}
 	}
+
+	
 }
 
 String getDataFromSerialBuffer()
 {
-	
 	char response[6];
 	response[0] = '\0';
 	String responseString = "";
@@ -122,6 +112,7 @@ String getDataFromSerialBuffer()
 		softwareSerial->readBytesUntil('*', response, 6);
 		responseString = response;
 		responseString.trim();
+		//Serial.println(responseString);
 		return responseString;
 	}
 	return "";

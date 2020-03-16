@@ -47,6 +47,8 @@ void setup() {
 
 uint8_t demultiplexerPosition;
 
+String idCurrentMessage = "";
+
 void loop() {
 	demultiplexerPosition = 0;
 
@@ -54,11 +56,11 @@ void loop() {
 
 	String responseString = "";
 
-	String idCurrentMessage = "";
+	/*String idCurrentMessage = "";*/
 
 	responseString = getDataFromSerialBuffer();
 
-	if (responseString != "")
+	if (responseString != "" && (!idCurrentMessage.equals(responseString.substring(0, 2))))
 	{
 		String csvString = "";
 
@@ -111,6 +113,7 @@ void loop() {
 
 String getDataFromSerialBuffer()
 {
+	
 	char response[6];
 	response[0] = '\0';
 	String responseString = "";
@@ -125,6 +128,8 @@ String getDataFromSerialBuffer()
 }
 
 void setMultiplexer(int channel) {
+
+	//Serial.print("setMultiplexer channel : "); Serial.println(channel);
 	int controlPin[] = { s0, s1, s2, s3 };
 
 	int muxChannel[16][4] = {

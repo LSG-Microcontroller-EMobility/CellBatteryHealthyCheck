@@ -78,9 +78,6 @@ void loop() {
 
 		responseString = "";
 
-
-		bool condition = true;
-
 		unsigned long d = millis();
 
 		while (millis() - d < 1000)

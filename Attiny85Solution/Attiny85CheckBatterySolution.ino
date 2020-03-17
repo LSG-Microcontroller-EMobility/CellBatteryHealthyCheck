@@ -8,7 +8,7 @@
 #include <SoftwareSerial.h>
 unsigned long pulse = 0;
 double measure = 0.00;
-uint8_t idMessageCounter = 0;
+uint8_t idMessageCounter = 1;
 
 SoftwareSerial softwareSerial(99, 3, false);
 
@@ -22,7 +22,7 @@ void setup() {
 // the loop function runs over and over again until power down or reset
 void loop() {
 	delay(1000);
-	if (idMessageCounter == 100) idMessageCounter = 0;
+	if (idMessageCounter == 100) idMessageCounter = 1;
 	if (idMessageCounter < 10) softwareSerial.print('0');
 	softwareSerial.print(idMessageCounter);
 	softwareSerial.print(measure);

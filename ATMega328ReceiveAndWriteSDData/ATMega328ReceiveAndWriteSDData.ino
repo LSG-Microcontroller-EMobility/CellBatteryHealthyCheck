@@ -6,6 +6,7 @@
 #include <SoftwareSerial.h>
 #include <SD.h>
 #include <SPI.h>
+#include <string.h> 
 
 int s0 = 4;
 int s1 = 5;
@@ -19,6 +20,7 @@ File myFile;
 uint8_t demultiplexerPosition;
 
 void setup() {
+	
 	demultiplexerPosition = 0;
 	pinMode(s0, OUTPUT);
 	pinMode(s1, OUTPUT);
@@ -46,8 +48,6 @@ void setup() {
 	}
 }
 
-
-
 String idCurrentMessage = "";
 String responseString = "";
 String csvString = "";
@@ -62,30 +62,42 @@ void loop() {
 	responseString = getDataFromSerialBuffer();
 
 	/*if (responseString != "" && (!idCurrentMessage.equals(responseString.substring(0, 2))))*/
-	if (responseString != "" && ((idCurrentMessage.compareTo(responseString.substring(0, 2)) !=0 )))
+	if (responseString != "" && 
+		((idCurrentMessage.compareTo(responseString.substring(0, 2)) !=0)))
 	{
+		if (!checkidCurrentMessage(responseString.substring(0, 2))) { return; };
+
+		idCurrentMessage = responseString.substring(0, 2);
+
 		csvString = "";
 
 		csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
 		writeOnSDCard(csvString);
 
-		idCurrentMessage = responseString.substring(0, 2);
+		
 
 		unsigned long d = millis();
 
 		++demultiplexerPosition;
 
-		while (millis() - d < 1000 && demultiplexerPosition < 2)
+		bool condition = true;
+
+		while (millis() - d < 1000 && demultiplexerPosition < 16 && condition)
 		{
 			setMultiplexer(demultiplexerPosition);
 
 			responseString = "";
 
 			responseString = getDataFromSerialBuffer();
-
+			
 			if (responseString != "")
 			{
+				if (idCurrentMessage.compareTo(responseString.substring(0, 2)) != 0)
+				{
+					condition = false;
+				}
+
 				String csvString = "";
 
 				csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
@@ -101,6 +113,25 @@ void loop() {
 	}
 
 	
+}
+
+bool checkidCurrentMessage(String idCurrentMessage)
+{
+	char id[2];
+
+	idCurrentMessage.toCharArray(id, 3);
+
+	uint8_t number;
+
+	number = atoi(id);
+
+	//Serial.println(idCurrentMessage);
+
+	//Serial.println(number);
+
+	if (number > 0 && number  < 100) return true;
+
+	return false;
 }
 
 String getDataFromSerialBuffer()

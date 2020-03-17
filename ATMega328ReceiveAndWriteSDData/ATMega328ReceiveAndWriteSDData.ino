@@ -207,6 +207,7 @@ void writeOnSDCard(String message)
 
 	else {
 		Serial.println("error opening battery.csv");
+		myFile.close();
 	}
 
 	//// Reading the file

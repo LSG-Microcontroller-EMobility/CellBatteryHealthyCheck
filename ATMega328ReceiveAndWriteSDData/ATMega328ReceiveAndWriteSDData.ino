@@ -72,16 +72,16 @@ void loop() {
 
 		idCurrentMessage = responseString.substring(0, 2);
 
-		demultiplexerPosition = 1;
-
-		setMultiplexer(demultiplexerPosition);
-
-		responseString = "";
-
 		unsigned long d = millis();
 
-		while (millis() - d < 1000)
+		++demultiplexerPosition;
+
+		while (millis() - d < 1000 && demultiplexerPosition < 2)
 		{
+			setMultiplexer(demultiplexerPosition);
+
+			responseString = "";
+
 			responseString = getDataFromSerialBuffer();
 
 			if (responseString != "")
@@ -91,6 +91,10 @@ void loop() {
 				csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
 				writeOnSDCard(csvString);
+
+				d = millis();
+
+				++demultiplexerPosition;
 				
 			}
 		}

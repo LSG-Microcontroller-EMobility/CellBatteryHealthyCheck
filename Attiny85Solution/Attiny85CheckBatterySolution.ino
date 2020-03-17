@@ -39,7 +39,7 @@ void setPWM()
 
 ISR(TIMER1_OVF_vect) {              // Interrupt vector for TIMER-1 OVR which set 50% period
 	pulse++;
-	if (pulse >= 320000)
+	if (pulse >= 600000)
 	{
 		idMessageCounter++;
 		measure = ((1.1 / 1024)*analogRead(A2)) + 0.04;

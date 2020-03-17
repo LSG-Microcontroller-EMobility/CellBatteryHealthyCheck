@@ -73,9 +73,7 @@ void loop() {
 
 		csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
-		writeOnSDCard(csvString);
-
-		
+		writeOnSDCard(csvString);	
 
 		unsigned long d = millis();
 
@@ -97,16 +95,19 @@ void loop() {
 				{
 					condition = false;
 				}
+				else
+				{
 
-				String csvString = "";
+					String csvString = "";
 
-				csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
+					csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
-				writeOnSDCard(csvString);
+					writeOnSDCard(csvString);
 
-				d = millis();
+					d = millis();
 
-				++demultiplexerPosition;
+					++demultiplexerPosition;
+				}
 				
 			}
 		}

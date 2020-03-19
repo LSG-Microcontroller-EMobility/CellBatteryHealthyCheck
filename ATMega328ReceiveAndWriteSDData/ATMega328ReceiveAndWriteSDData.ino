@@ -75,13 +75,13 @@ void loop() {
 
 		writeOnSDCard(csvString);	
 
-		unsigned long d = millis();
+		unsigned long timeForSerialData = millis();
 
 		++demultiplexerPosition;
 
 		bool condition = true;
 
-		while (millis() - d < 1000 && demultiplexerPosition < 16 && condition)
+		while (millis() - timeForSerialData < 1000 && demultiplexerPosition < 16 && condition)
 		{
 			setMultiplexer(demultiplexerPosition);
 
@@ -104,7 +104,7 @@ void loop() {
 
 					writeOnSDCard(csvString);
 
-					d = millis();
+					timeForSerialData = millis();
 
 					++demultiplexerPosition;
 				}

@@ -7,6 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Attiny85CheckBatterySolutio
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATMega328ReceiveAndWriteSDData", "ATMega328ReceiveAndWriteSDData\ATMega328ReceiveAndWriteSDData.vcxproj", "{477DB96A-5914-44A9-947A-DD3F20A9617F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documents", "documents", "{02F040A5-E54A-42F0-8D80-BAC0347CC3DE}"
+	ProjectSection(SolutionItems) = preProject
+		Circuit\Eagle\CheckBatteryVoltage.brd = Circuit\Eagle\CheckBatteryVoltage.brd
+		Circuit\Eagle\NanoDemultiplexerAndSDcard.brd = Circuit\Eagle\NanoDemultiplexerAndSDcard.brd
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86

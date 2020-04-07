@@ -16,7 +16,7 @@ void setup() {
 	softwareSerial.begin(600);
 	setPWM();
 	pinMode(CLKOUT, OUTPUT);  // Set pin as output
-	analogReference(INTERNAL1V1);
+	analogReference(INTERNAL2V56);
 }
 
 // the loop function runs over and over again until power down or reset
@@ -42,7 +42,7 @@ ISR(TIMER1_OVF_vect) {              // Interrupt vector for TIMER-1 OVR which se
 	if (pulse >= 600000)
 	{
 		idMessageCounter++;
-		measure = ((1.1 / 1024)*analogRead(A2)) + 0.04;
+		measure = ((2.56 / 1024)*analogRead(A2)) + 0.04;
 		pulse = 0;
 	}
 

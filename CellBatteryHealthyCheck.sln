@@ -8,9 +8,19 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATMega328ReceiveAndWriteSDData", "ATMega328ReceiveAndWriteSDData\ATMega328ReceiveAndWriteSDData.vcxproj", "{477DB96A-5914-44A9-947A-DD3F20A9617F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documents", "documents", "{02F040A5-E54A-42F0-8D80-BAC0347CC3DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3dPrinting", "3dPrinting", "{62A83716-35BC-4EA2-80CF-B6682E4D5E16}"
 	ProjectSection(SolutionItems) = preProject
+		3dPrinting\Enclousure.f3d = 3dPrinting\Enclousure.f3d
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "circuits", "circuits", "{D127059B-A8D9-450D-BB42-C4C6F3F0556A}"
+	ProjectSection(SolutionItems) = preProject
+		Circuit\Eagle\12VBridgeConnector.brd = Circuit\Eagle\12VBridgeConnector.brd
+		Circuit\Eagle\12VConnector.brd = Circuit\Eagle\12VConnector.brd
 		Circuit\Eagle\CheckBatteryVoltage.brd = Circuit\Eagle\CheckBatteryVoltage.brd
 		Circuit\Eagle\NanoDemultiplexerAndSDcard.brd = Circuit\Eagle\NanoDemultiplexerAndSDcard.brd
+		Circuit\Eagle\NanoDemultiplexerAndSDcard12Volts.brd = Circuit\Eagle\NanoDemultiplexerAndSDcard12Volts.brd
 	EndProjectSection
 EndProject
 Global

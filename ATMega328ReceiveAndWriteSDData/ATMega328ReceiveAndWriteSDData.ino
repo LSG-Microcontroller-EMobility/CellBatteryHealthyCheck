@@ -13,8 +13,9 @@ int s1 = 5;
 int s2 = 6;
 int s3 = 7;
 
-const uint8_t numberOfBattery = 16;
-const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
+const uint8_t numberOfBattery = 2;
+//const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
+const char* idBattery[numberOfBattery] = { "B1","B2" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
 SoftwareSerial* softwareSerial = new SoftwareSerial(3, 10);
 File myFile;
 uint8_t demultiplexerPosition;
@@ -22,6 +23,8 @@ uint8_t demultiplexerPosition;
 void setup() {
 	
 	demultiplexerPosition = 0;
+	pinMode(9, OUTPUT);
+
 	pinMode(s0, OUTPUT);
 	pinMode(s1, OUTPUT);
 	pinMode(s2, OUTPUT);
@@ -31,6 +34,8 @@ void setup() {
 	digitalWrite(s1, LOW);
 	digitalWrite(s2, LOW);
 	digitalWrite(s3, LOW);
+
+	digitalWrite(9, LOW);
 
 	Serial.begin(9600);
 
@@ -73,7 +78,7 @@ void loop() {
 
 		csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
-		writeOnSDCard(csvString);	
+		writeOnSDCard(csvString);
 
 		unsigned long timeForSerialData = millis();
 
@@ -81,19 +86,30 @@ void loop() {
 
 		bool condition = true;
 
-		while (millis() - timeForSerialData < 1000 && demultiplexerPosition < 16 && condition)
+	
+		while (millis() - timeForSerialData < 1000 && demultiplexerPosition < 2 && condition)
 		{
+			//Serial.println(demultiplexerPosition);
+
 			setMultiplexer(demultiplexerPosition);
 
 			responseString = "";
 
 			responseString = getDataFromSerialBuffer();
+
+			
 			
 			if (responseString != "")
 			{
+				//Serial.println(responseString);
 				if (idCurrentMessage.compareTo(responseString.substring(0, 2)) != 0)
 				{
+					Serial.print("Disallineamento :  "); Serial.println(responseString);
 					condition = false;
+					digitalWrite(9, HIGH);
+					delay(500);
+					digitalWrite(9, LOW);
+					idCurrentMessage = "";
 				}
 				else
 				{

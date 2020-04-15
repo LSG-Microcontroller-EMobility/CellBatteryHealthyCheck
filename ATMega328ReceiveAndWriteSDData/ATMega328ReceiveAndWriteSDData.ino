@@ -13,9 +13,9 @@ int s1 = 5;
 int s2 = 6;
 int s3 = 7;
 
-const uint8_t numberOfBattery = 8;
+const uint8_t numberOfBattery = 2;
 //const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
-const char* idBattery[numberOfBattery] = { "B0","B1" , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
+const char* idBattery[numberOfBattery] = { "B0","B1" };// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
 SoftwareSerial* softwareSerial = new SoftwareSerial(3, 10);
 File myFile;
 uint8_t demultiplexerPosition;
@@ -76,7 +76,7 @@ void loop() {
 	{
 		if (!checkidCurrentMessage(responseString.substring(0, 2))) { return; };
 
-		if (responseString.substring(2, 6) == "0.00") { return; };
+		//if (responseString.substring(2, 6) == "0.00") { return; };
 
 		idCurrentMessage = responseString.substring(0, 2);
 
@@ -86,7 +86,7 @@ void loop() {
 
 		if (csvString.length() != 10) 
 		{ 
-			Serial.print("disallineamento su lettura iniziale :  "); Serial.println(responseString);
+			//Serial.print("disallineamento su lettura iniziale :  "); Serial.println(responseString);
 			return; }
 
 		writeOnSDCard(csvString);
@@ -118,7 +118,7 @@ void loop() {
 				if (idCurrentMessage.compareTo(responseString.substring(0, 2)) != 0)
 				{
 					numeroDisallineamenti++;
-					Serial.print("disallineamento su loop :  "); Serial.println(responseString);
+					//Serial.print("disallineamento su loop :  "); Serial.println(responseString);
 					timeForSerialData = millis();
 					if (numeroDisallineamenti > 3)
 					{
@@ -150,6 +150,7 @@ void loop() {
 		delay(500);
 		digitalWrite(9, LOW);
 		idCurrentMessage = "";
+		//Serial.println("reset all attiny85"); 
 	}
 
 }

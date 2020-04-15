@@ -8,15 +8,19 @@
 #include <SoftwareSerial.h>
 unsigned long pulse = 0;
 double measure = 0.00;
-uint8_t idMessageCounter = 1;
+uint8_t idMessageCounter;
 
 SoftwareSerial softwareSerial(99, 3, false);
 
 void setup() {
+	
 	softwareSerial.begin(600);
 	setPWM();
 	pinMode(CLKOUT, OUTPUT);  // Set pin as output
 	analogReference(INTERNAL2V56);
+	delay(1000);
+	measure = ((2.56 / 1024)*analogRead(A2)) + 0.04;
+	idMessageCounter = rand() % 99 + 1;
 }
 
 // the loop function runs over and over again until power down or reset
@@ -41,7 +45,7 @@ ISR(TIMER1_OVF_vect) {              // Interrupt vector for TIMER-1 OVR which se
 	pulse++;
 	if (pulse >= 600000)
 	{
-		idMessageCounter++;
+		idMessageCounter = rand() % 99 + 1;
 		measure = ((2.56 / 1024)*analogRead(A2)) + 0.04;
 		pulse = 0;
 	}

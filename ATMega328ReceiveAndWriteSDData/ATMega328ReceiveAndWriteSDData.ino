@@ -13,15 +13,15 @@ int s1 = 5;
 int s2 = 6;
 int s3 = 7;
 
-const uint8_t numberOfBattery = 2;
+const uint8_t numberOfBattery = 8;
 //const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
-const char* idBattery[numberOfBattery] = { "B1","B2" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
+const char* idBattery[numberOfBattery] = { "B0","B1" , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
 SoftwareSerial* softwareSerial = new SoftwareSerial(3, 10);
 File myFile;
 uint8_t demultiplexerPosition;
 
 void setup() {
-	
+
 	demultiplexerPosition = 0;
 	pinMode(9, OUTPUT);
 
@@ -57,6 +57,8 @@ String idCurrentMessage = "";
 String responseString = "";
 String csvString = "";
 
+uint8_t numeroDisallineamenti = 0;
+
 void loop() {
 	demultiplexerPosition = 0;
 
@@ -66,17 +68,26 @@ void loop() {
 
 	responseString = getDataFromSerialBuffer();
 
+	responseString.trim();
+
 	/*if (responseString != "" && (!idCurrentMessage.equals(responseString.substring(0, 2))))*/
 	if (responseString != "" && 
-		((idCurrentMessage.compareTo(responseString.substring(0, 2)) !=0)))
+		((idCurrentMessage.compareTo(responseString.substring(0, 2)) != 0)))
 	{
 		if (!checkidCurrentMessage(responseString.substring(0, 2))) { return; };
+
+		if (responseString.substring(2, 6) == "0.00") { return; };
 
 		idCurrentMessage = responseString.substring(0, 2);
 
 		csvString = "";
 
 		csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
+
+		if (csvString.length() != 10) 
+		{ 
+			Serial.print("disallineamento su lettura iniziale :  "); Serial.println(responseString);
+			return; }
 
 		writeOnSDCard(csvString);
 
@@ -86,8 +97,10 @@ void loop() {
 
 		bool condition = true;
 
-	
-		while (millis() - timeForSerialData < 1000 && demultiplexerPosition < 2 && condition)
+		numeroDisallineamenti = 0;
+
+
+		while (millis() - timeForSerialData < 1500 && demultiplexerPosition < numberOfBattery && condition)
 		{
 			//Serial.println(demultiplexerPosition);
 
@@ -97,22 +110,28 @@ void loop() {
 
 			responseString = getDataFromSerialBuffer();
 
-			
-			
+			responseString.trim();
+
 			if (responseString != "")
 			{
 				//Serial.println(responseString);
 				if (idCurrentMessage.compareTo(responseString.substring(0, 2)) != 0)
 				{
-					Serial.print("Disallineamento :  "); Serial.println(responseString);
-					condition = false;
-					digitalWrite(9, HIGH);
-					delay(500);
-					digitalWrite(9, LOW);
-					idCurrentMessage = "";
+					numeroDisallineamenti++;
+					Serial.print("disallineamento su loop :  "); Serial.println(responseString);
+					timeForSerialData = millis();
+					if (numeroDisallineamenti > 3)
+					{
+						condition = false;
+						digitalWrite(9, HIGH);
+						delay(500);
+						digitalWrite(9, LOW);
+						idCurrentMessage = "";
+					}
 				}
 				else
 				{
+					numeroDisallineamenti = 0;
 
 					String csvString = "";
 
@@ -124,12 +143,15 @@ void loop() {
 
 					++demultiplexerPosition;
 				}
-				
+
 			}
 		}
+		digitalWrite(9, HIGH);
+		delay(500);
+		digitalWrite(9, LOW);
+		idCurrentMessage = "";
 	}
 
-	
 }
 
 bool checkidCurrentMessage(String idCurrentMessage)
@@ -146,7 +168,9 @@ bool checkidCurrentMessage(String idCurrentMessage)
 
 	//Serial.println(number);
 
-	if (number > 0 && number  < 100) return true;
+	if (number > 0 && number < 100) return true;
+
+	//Serial.println("numero non valido");
 
 	return false;
 }

@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "circuits", "circuits", "{D1
 		Circuit\Eagle\12VBridgeConnector.brd = Circuit\Eagle\12VBridgeConnector.brd
 		Circuit\Eagle\12VConnector.brd = Circuit\Eagle\12VConnector.brd
 		Circuit\Eagle\CheckBatteryVoltage.brd = Circuit\Eagle\CheckBatteryVoltage.brd
+		Circuit\Eagle\CheckBatteryVoltage12Volts.brd = Circuit\Eagle\CheckBatteryVoltage12Volts.brd
 		Circuit\Eagle\NanoDemultiplexerAndSDcard.brd = Circuit\Eagle\NanoDemultiplexerAndSDcard.brd
 		Circuit\Eagle\NanoDemultiplexerAndSDcard12Volts.brd = Circuit\Eagle\NanoDemultiplexerAndSDcard12Volts.brd
 	EndProjectSection

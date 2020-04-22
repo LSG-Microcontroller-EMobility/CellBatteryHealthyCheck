@@ -8,34 +8,58 @@
 #include <SPI.h>
 #include <string.h> 
 
-int s0 = 4;
-int s1 = 5;
-int s2 = 6;
-int s3 = 7;
+const uint8_t selectorMultiPlex0 = 4;
+
+const uint8_t selectorMultiPlex1 = 5;
+
+const uint8_t selectorMultiPlex2 = 6;
+
+const uint8_t selectorMultiPlex3 = 7;
 
 const uint8_t numberOfBattery = 2;
+
+const uint8_t rxPin = 3;
+
+const uint8_t resetAttiny85TransistorPin = 9;
+
+//Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
+
+
+
 //const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
 const char* idBattery[numberOfBattery] = { "B0","B1" };// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
-SoftwareSerial* softwareSerial = new SoftwareSerial(3, 10);
+
+SoftwareSerial* softwareSerial = new SoftwareSerial(rxPin, 66);
+
 File myFile;
+
 uint8_t demultiplexerPosition;
+
+uint8_t fileNumber = 0;
 
 void setup() {
 
 	demultiplexerPosition = 0;
-	pinMode(9, OUTPUT);
 
-	pinMode(s0, OUTPUT);
-	pinMode(s1, OUTPUT);
-	pinMode(s2, OUTPUT);
-	pinMode(s3, OUTPUT);
+	pinMode(resetAttiny85TransistorPin, OUTPUT);
 
-	digitalWrite(s0, LOW);
-	digitalWrite(s1, LOW);
-	digitalWrite(s2, LOW);
-	digitalWrite(s3, LOW);
+	pinMode(selectorMultiPlex0, OUTPUT);
 
-	digitalWrite(9, LOW);
+	pinMode(selectorMultiPlex1, OUTPUT);
+
+	pinMode(selectorMultiPlex2, OUTPUT);
+
+	pinMode(selectorMultiPlex3, OUTPUT);
+
+	digitalWrite(selectorMultiPlex0, LOW);
+
+	digitalWrite(selectorMultiPlex1, LOW);
+
+	digitalWrite(selectorMultiPlex2, LOW);
+
+	digitalWrite(selectorMultiPlex3, LOW);
+
+	digitalWrite(resetAttiny85TransistorPin, LOW);
 
 	Serial.begin(9600);
 
@@ -44,7 +68,16 @@ void setup() {
 	if (SD.begin())
 	{
 		Serial.println("SD card is ready to use.");
-		SD.remove("battery.csv");
+		for (uint8_t i = 0; i < 100; i++)
+		{
+			String fileName = "battery" + String(i) + ".csv";
+			if (SD.exists(fileName))
+			{
+				Serial.println("File esiste");
+				fileNumber = i + 1;
+			}
+		}
+		//SD.remove("battery.csv");
 	}
 	else
 	{
@@ -54,12 +87,15 @@ void setup() {
 }
 
 String idCurrentMessage = "";
+
 String responseString = "";
+
 String csvString = "";
 
 uint8_t numeroDisallineamenti = 0;
 
 void loop() {
+
 	demultiplexerPosition = 0;
 
 	setMultiplexer(demultiplexerPosition);
@@ -91,16 +127,16 @@ void loop() {
 
 		writeOnSDCard(csvString);
 
-		unsigned long timeForSerialData = millis();
-
 		++demultiplexerPosition;
 
 		bool condition = true;
 
 		numeroDisallineamenti = 0;
 
+		unsigned long timeForSerialData = millis();
 
-		while (millis() - timeForSerialData < 1500 && demultiplexerPosition < numberOfBattery && condition)
+
+		while ((millis() - timeForSerialData < 1500) && (demultiplexerPosition < numberOfBattery) && condition)
 		{
 			//Serial.println(demultiplexerPosition);
 
@@ -123,9 +159,9 @@ void loop() {
 					if (numeroDisallineamenti > 3)
 					{
 						condition = false;
-						digitalWrite(9, HIGH);
+						digitalWrite(resetAttiny85TransistorPin, HIGH);
 						delay(500);
-						digitalWrite(9, LOW);
+						digitalWrite(resetAttiny85TransistorPin, LOW);
 						idCurrentMessage = "";
 					}
 				}
@@ -146,9 +182,9 @@ void loop() {
 
 			}
 		}
-		digitalWrite(9, HIGH);
+		digitalWrite(resetAttiny85TransistorPin, HIGH);
 		delay(500);
-		digitalWrite(9, LOW);
+		digitalWrite(resetAttiny85TransistorPin, LOW);
 		idCurrentMessage = "";
 		//Serial.println("reset all attiny85"); 
 	}
@@ -195,7 +231,7 @@ String getDataFromSerialBuffer()
 void setMultiplexer(int channel) {
 
 	//Serial.print("setMultiplexer channel : "); Serial.println(channel);
-	int controlPin[] = { s0, s1, s2, s3 };
+	int controlPin[] = { selectorMultiPlex0, selectorMultiPlex1, selectorMultiPlex2, selectorMultiPlex3 };
 
 	int muxChannel[16][4] = {
 	  {0,0,0,0}, //channel 0
@@ -240,14 +276,16 @@ String prepareStringForSDCard(String message, uint8_t demultiplexerPosition)
 void writeOnSDCard(String message)
 {
 	// Create/Open file 
-	myFile = SD.open("battery.csv", FILE_WRITE);
+	String fileName = "battery" + String(fileNumber) + ".csv";
+	myFile = SD.open(fileName, FILE_WRITE);
 	if (myFile) {
 		myFile.println(message);
+		Serial.println("Scrivo su card");
 		myFile.close();
 	}
 
 	else {
-		Serial.println("error opening battery.csv");
+		Serial.println("error opening battery.cvs");
 		myFile.close();
 	}
 

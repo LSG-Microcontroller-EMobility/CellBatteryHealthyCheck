@@ -4,9 +4,9 @@
  Author:	luigi.santagada
 */
 
-#define CLKOUT      1  
+//#define CLKOUT      1  
 #include <SoftwareSerial.h>
-unsigned long pulse = 0;
+//unsigned long pulse = 0;
 double measure = 0.00;
 uint8_t idMessageCounter;
 
@@ -16,15 +16,16 @@ void setup() {
 	softwareSerial.begin(600);
 	//softwareSerial.println("Begin");
 	//setPWM();
-	pinMode(CLKOUT, OUTPUT);  // Set pin as output
-	analogReference(INTERNAL2V56);
+	//pinMode(CLKOUT, OUTPUT);  // Set pin as output
 	delay(1000);
 	idMessageCounter  = millis() / 100;
-	measure = ((2.56 / 1024)*analogRead(A2)) + 0.04;
+	measure = ((4.3 / 1024)*analogRead(A2));// +0.04;
+	analogReference(EXTERNAL);
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
+	//measure = ((4.3 / 1024)*analogRead(A2));// -0.4;
 	delay(1000);
 	if (idMessageCounter == 100) idMessageCounter = 1;
 	if (idMessageCounter < 10) softwareSerial.print('0');

@@ -39,6 +39,8 @@ uint8_t fileNumber = 0;
 
 void setup() {
 
+	
+
 	demultiplexerPosition = 0;
 
 	pinMode(resetAttiny85TransistorPin, OUTPUT);
@@ -65,12 +67,14 @@ void setup() {
 
 	softwareSerial->begin(600);
 
+	
+
 	if (SD.begin())
 	{
 		Serial.println("SD card is ready to use.");
 		for (uint8_t i = 0; i < 100; i++)
 		{
-			String fileName = "battery" + String(i) + ".csv";
+			String fileName = "batt" + String(i) + ".csv";
 			if (SD.exists(fileName))
 			{
 				Serial.println("File esiste");
@@ -84,6 +88,7 @@ void setup() {
 		Serial.println("SD card initialization failed");
 		return;
 	}
+	
 }
 
 String idCurrentMessage = "";
@@ -276,7 +281,8 @@ String prepareStringForSDCard(String message, uint8_t demultiplexerPosition)
 void writeOnSDCard(String message)
 {
 	// Create/Open file 
-	String fileName = "battery" + String(fileNumber) + ".csv";
+	String fileName = "batt" + String(fileNumber) + ".csv";
+	Serial.print("Apro file:"); Serial.print(fileName);
 	myFile = SD.open(fileName, FILE_WRITE);
 	if (myFile) {
 		myFile.println(message);

@@ -7,7 +7,7 @@
 //#define CLKOUT      1  
 #include <SoftwareSerial.h>
 //unsigned long pulse = 0;
-double measure = 0.00;
+double measure = 0.00; 
 uint8_t idMessageCounter;
 
 SoftwareSerial softwareSerial(99, 3, false);

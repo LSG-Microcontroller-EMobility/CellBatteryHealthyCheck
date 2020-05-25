@@ -1,7 +1,7 @@
 /*
  Name:		AtTiny85Test.ino
  Created:	3/3/2020 1:09:44 AM
- Author:	luigi.santagada
+ Author:	luigi.santagada 
 */
 
 //#define CLKOUT      1  

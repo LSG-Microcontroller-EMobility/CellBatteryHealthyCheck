@@ -1,7 +1,7 @@
 /*
  Name:		Receiver.ino
  Created:	3/8/2020 1:53:08 AM
- Author:	luigi.santagada 
+ Author:	luigi.santagadaa 
 */
 #include <SoftwareSerial.h>
 #include <SD.h>

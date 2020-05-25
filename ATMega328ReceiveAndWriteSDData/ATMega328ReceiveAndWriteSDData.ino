@@ -38,9 +38,6 @@ uint8_t demultiplexerPosition;
 uint8_t fileNumber = 0;
 
 void setup() {
-	//Inserisco un commento di developer01
-	//Inserisco un commento di Luigi Santagada
-
 	demultiplexerPosition = 0;
 
 	pinMode(resetAttiny85TransistorPin, OUTPUT);

@@ -19,7 +19,7 @@ void setup() {
 	//pinMode(CLKOUT, OUTPUT);  // Set pin as output
 	delay(1000);
 	idMessageCounter  = millis() / 100;
-	measure = ((4.3 / 1024)*analogRead(A2));// +0.04;
+	measure = ((3.7 / 1024)*analogRead(A2));// +0.04;
 	analogReference(EXTERNAL);
 }
 
@@ -29,8 +29,8 @@ void loop() {
 	delay(1000);
 	if (idMessageCounter == 100) idMessageCounter = 1;
 	if (idMessageCounter < 10) softwareSerial.print('0');
-	softwareSerial.print(idMessageCounter);
 	softwareSerial.print(measure);
+	softwareSerial.print(idMessageCounter);
 	softwareSerial.print('*');
 }
 

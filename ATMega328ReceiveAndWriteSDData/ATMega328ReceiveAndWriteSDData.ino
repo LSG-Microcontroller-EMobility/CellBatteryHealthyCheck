@@ -16,7 +16,7 @@ const uint8_t selectorMultiPlex2 = 6;
 
 const uint8_t selectorMultiPlex3 = 7;
 
-const uint8_t numberOfBattery = 2;
+const uint8_t numberOfBattery = 4;
 
 const uint8_t rxPin = 3;
 
@@ -24,10 +24,8 @@ const uint8_t resetAttiny85TransistorPin = 9;
 
 //Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
-
-
 //const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
-const char* idBattery[numberOfBattery] = { "B0","B1" };// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
+const char* idBattery[numberOfBattery] = { "B0","B1", "B2" ,"B4"};// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
 
 SoftwareSerial* softwareSerial = new SoftwareSerial(rxPin, 66);
 
@@ -59,13 +57,11 @@ void setup() {
 
 	digitalWrite(selectorMultiPlex3, LOW);
 
-	digitalWrite(resetAttiny85TransistorPin, LOW);
+	digitalWrite(resetAttiny85TransistorPin, HIGH);
 
 	Serial.begin(9600);
 
 	softwareSerial->begin(600);
-
-	
 
 	if (SD.begin())
 	{
@@ -86,7 +82,8 @@ void setup() {
 		Serial.println("SD card initialization failed");
 		return;
 	}
-	
+	resetAttiny85();
+
 }
 
 String idCurrentMessage = "";
@@ -98,7 +95,6 @@ String csvString = "";
 uint8_t numeroDisallineamenti = 0;
 
 void loop() {
-
 	demultiplexerPosition = 0;
 
 	setMultiplexer(demultiplexerPosition);
@@ -107,26 +103,21 @@ void loop() {
 
 	responseString = getDataFromSerialBuffer();
 
-	responseString.trim();
-
-	/*if (responseString != "" && (!idCurrentMessage.equals(responseString.substring(0, 2))))*/
-	if (responseString != "" && 
-		((idCurrentMessage.compareTo(responseString.substring(0, 2)) != 0)))
+	if (responseString != "")
 	{
-		if (!checkidCurrentMessage(responseString.substring(0, 2))) { return; };
+		Serial.println(F("-----------------START------------------------"));
 
-		//if (responseString.substring(2, 6) == "0.00") { return; };
-
-		idCurrentMessage = responseString.substring(0, 2);
-
+		checkNumber(responseString);
+		
 		csvString = "";
 
 		csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
-		if (csvString.length() != 10) 
-		{ 
-			//Serial.print("disallineamento su lettura iniziale :  "); Serial.println(responseString);
-			return; }
+		if (csvString.length() != 9)
+		{
+			Serial.print(F("disallineamento - ")); Serial.println(responseString);
+			return;
+		}
 
 		writeOnSDCard(csvString);
 
@@ -138,101 +129,91 @@ void loop() {
 
 		unsigned long timeForSerialData = millis();
 
+		clearSerialBuffer();
 
-		while ((millis() - timeForSerialData < 1500) && (demultiplexerPosition < numberOfBattery) && condition)
+		while ((millis() - timeForSerialData < 10000) && (demultiplexerPosition < numberOfBattery) && condition)
 		{
 			//Serial.println(demultiplexerPosition);
 
+			//todo;rimuovere fuori dal ciclo while.
 			setMultiplexer(demultiplexerPosition);
 
 			responseString = "";
 
 			responseString = getDataFromSerialBuffer();
 
-			responseString.trim();
-
 			if (responseString != "")
 			{
-				//Serial.println(responseString);
-				if (idCurrentMessage.compareTo(responseString.substring(0, 2)) != 0)
+
+				checkNumber(responseString);
+				
+				numeroDisallineamenti = 0;
+
+				String csvString = "";
+
+				csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
+
+				if (csvString.length() != 9)
 				{
-					numeroDisallineamenti++;
-					//Serial.print("disallineamento su loop :  "); Serial.println(responseString);
-					timeForSerialData = millis();
-					if (numeroDisallineamenti > 3)
-					{
-						condition = false;
-						digitalWrite(resetAttiny85TransistorPin, HIGH);
-						delay(500);
-						digitalWrite(resetAttiny85TransistorPin, LOW);
-						idCurrentMessage = "";
-					}
-				}
-				else
-				{
-					numeroDisallineamenti = 0;
-
-					String csvString = "";
-
-					csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
-
-					writeOnSDCard(csvString);
-
-					timeForSerialData = millis();
-
-					++demultiplexerPosition;
+					Serial.print(F("disallineamento - ")); Serial.println(responseString);
+					return;
 				}
 
+				writeOnSDCard(csvString);
+
+				timeForSerialData = millis();
+
+				++demultiplexerPosition;
 			}
 		}
-		digitalWrite(resetAttiny85TransistorPin, HIGH);
-		delay(500);
-		digitalWrite(resetAttiny85TransistorPin, LOW);
+		resetAttiny85();
+		clearSerialBuffer();
 		idCurrentMessage = "";
-		//Serial.println("reset all attiny85"); 
+		Serial.println(F("-----------------END------------------------"));
 	}
-
+	
 }
 
-bool checkidCurrentMessage(String idCurrentMessage)
+bool checkNumber(String responseString)
 {
-	char id[2];
+	String stringNumber = responseString.substring(1, 5);
 
-	idCurrentMessage.toCharArray(id, 3);
+	char id[5];
 
-	uint8_t number;
+	stringNumber.toCharArray(id, 5);
 
-	number = atoi(id);
+	double number;
 
-	//Serial.println(idCurrentMessage);
+	number = atof(id);
 
-	//Serial.println(number);
+	Serial.print("checkidCurrentMessage ->stringNumber : "); Serial.println(stringNumber);
+
+	Serial.print("checkidCurrentMessage ->number : "); Serial.println(number);
 
 	if (number > 0 && number < 100) return true;
 
-	//Serial.println("numero non valido");
+	Serial.println("numero non valido");
 
 	return false;
 }
 
 String getDataFromSerialBuffer()
 {
-	char response[6];
+	char response[7];
 	response[0] = '\0';
 	String responseString = "";
 	if (softwareSerial->available() > 0)
 	{
-		softwareSerial->readBytesUntil('*', response, 6);
+		softwareSerial->readBytesUntil('*', response, 7);
 		responseString = response;
 		responseString.trim();
-		//Serial.println(responseString);
+		Serial.print("data from attiny85 : "); Serial.println(responseString);
 		return responseString;
 	}
 	return "";
 }
 
 void setMultiplexer(int channel) {
-
 	//Serial.print("setMultiplexer channel : "); Serial.println(channel);
 	int controlPin[] = { selectorMultiPlex0, selectorMultiPlex1, selectorMultiPlex2, selectorMultiPlex3 };
 
@@ -259,18 +240,12 @@ void setMultiplexer(int channel) {
 	for (int i = 0; i < 4; i++) {
 		digitalWrite(controlPin[i], muxChannel[channel][i]);
 	}
-
-	////read the value at the SIG pin
-	//int val = analogRead(A0);
-
-	//return the value
-	//return val;
 }
 
 String prepareStringForSDCard(String message, uint8_t demultiplexerPosition)
 {
 	String csvString = "";
-	csvString = message.substring(0, 2) + ";" + String(idBattery[demultiplexerPosition]) + ";" + message.substring(2, 6);
+	csvString = message.substring(5, 6) + ";" + String(idBattery[demultiplexerPosition]) + ";" + message.substring(1, 5);
 	Serial.println(csvString);
 	//writeOnSDCard(csvString);
 	return csvString;
@@ -308,3 +283,19 @@ void writeOnSDCard(String message)
 	//}
 
 }
+
+void resetAttiny85()
+{
+	digitalWrite(resetAttiny85TransistorPin, LOW);
+	delay(500);
+	digitalWrite(resetAttiny85TransistorPin, HIGH);
+}
+
+void clearSerialBuffer()
+{
+	for (int i = 0; i < 10000; i++)
+	{
+		softwareSerial->read();
+	}
+}
+

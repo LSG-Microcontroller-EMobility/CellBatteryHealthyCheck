@@ -22,10 +22,14 @@ const uint8_t rxPin = 3;
 
 const uint8_t resetAttiny85TransistorPin = 9;
 
+uint8_t _pin_buzzer = 8;
+
 //Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
 //const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
-const char* idBattery[numberOfBattery] = { "B0","B1", "B2" ,"B4"};// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
+const char* idBattery[numberOfBattery] = { "B0","B1","B2","B3" };//, "B2" ,"B4"};// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
+const double deltaVoltage[numberOfBattery] = { 0.1,0.3,0,0.1 };
+
 
 SoftwareSerial* softwareSerial = new SoftwareSerial(rxPin, 66);
 
@@ -34,6 +38,9 @@ File myFile;
 uint8_t demultiplexerPosition;
 
 uint8_t fileNumber = 0;
+
+bool _isBuzzerDisabled = true;
+
 
 void setup() {
 
@@ -63,6 +70,8 @@ void setup() {
 
 	softwareSerial->begin(600);
 
+	pinMode(8, OUTPUT);
+
 	if (SD.begin())
 	{
 		Serial.println("SD card is ready to use.");
@@ -79,9 +88,11 @@ void setup() {
 	}
 	else
 	{
+		buzzerSensorActivity(5,400,1000,0);
 		Serial.println("SD card initialization failed");
 		return;
 	}
+
 	resetAttiny85();
 
 }
@@ -94,7 +105,10 @@ String csvString = "";
 
 uint8_t numeroDisallineamenti = 0;
 
+String _idMessage = "";
+
 void loop() {
+
 	demultiplexerPosition = 0;
 
 	setMultiplexer(demultiplexerPosition);
@@ -107,8 +121,8 @@ void loop() {
 	{
 		Serial.println(F("-----------------START------------------------"));
 
-		checkNumber(responseString);
-		
+		_idMessage = responseString.substring(5, 6);
+
 		csvString = "";
 
 		csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
@@ -133,9 +147,6 @@ void loop() {
 
 		while ((millis() - timeForSerialData < 10000) && (demultiplexerPosition < numberOfBattery) && condition)
 		{
-			//Serial.println(demultiplexerPosition);
-
-			//todo;rimuovere fuori dal ciclo while.
 			setMultiplexer(demultiplexerPosition);
 
 			responseString = "";
@@ -144,37 +155,40 @@ void loop() {
 
 			if (responseString != "")
 			{
-
-				checkNumber(responseString);
-				
 				numeroDisallineamenti = 0;
+
+			
 
 				String csvString = "";
 
 				csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
-				if (csvString.length() != 9)
+				if (csvString.length() == 9 && responseString.substring(5, 6) == _idMessage)
+				{
+					writeOnSDCard(csvString);
+
+					timeForSerialData = millis();
+
+					++demultiplexerPosition;
+				}
+				else
 				{
 					Serial.print(F("disallineamento - ")); Serial.println(responseString);
-					return;
 				}
 
-				writeOnSDCard(csvString);
-
-				timeForSerialData = millis();
-
-				++demultiplexerPosition;
+				
 			}
 		}
+		buzzerSensorActivity(15, 1000, 100, 0);
 		resetAttiny85();
 		clearSerialBuffer();
 		idCurrentMessage = "";
 		Serial.println(F("-----------------END------------------------"));
 	}
-	
+
 }
 
-bool checkNumber(String responseString)
+double getNumber(String responseString)
 {
 	String stringNumber = responseString.substring(1, 5);
 
@@ -186,15 +200,17 @@ bool checkNumber(String responseString)
 
 	number = atof(id);
 
-	Serial.print("checkidCurrentMessage ->stringNumber : "); Serial.println(stringNumber);
+	//Serial.print(F("checkidCurrentMessage ->stringNumber : ")); Serial.println(stringNumber);
 
-	Serial.print("checkidCurrentMessage ->number : "); Serial.println(number);
+	//Serial.print(F("checkidCurrentMessage ->number : ")); Serial.println(number);
 
-	if (number > 0 && number < 100) return true;
+	if (number > 0 && number < 100) {
+		return number;
+	}
 
-	Serial.println("numero non valido");
+	//Serial.println(F("numero non valido"));
 
-	return false;
+	return -1;
 }
 
 String getDataFromSerialBuffer()
@@ -207,7 +223,7 @@ String getDataFromSerialBuffer()
 		softwareSerial->readBytesUntil('*', response, 7);
 		responseString = response;
 		responseString.trim();
-		Serial.print("data from attiny85 : "); Serial.println(responseString);
+		Serial.print(F("data from attiny85 : ")); Serial.println(responseString);
 		return responseString;
 	}
 	return "";
@@ -245,7 +261,9 @@ void setMultiplexer(int channel) {
 String prepareStringForSDCard(String message, uint8_t demultiplexerPosition)
 {
 	String csvString = "";
-	csvString = message.substring(5, 6) + ";" + String(idBattery[demultiplexerPosition]) + ";" + message.substring(1, 5);
+	double number = getNumber(message);
+	number = number + deltaVoltage[demultiplexerPosition];
+	csvString = message.substring(5, 6) + ";" + String(idBattery[demultiplexerPosition]) + ";" + String(number);
 	Serial.println(csvString);
 	//writeOnSDCard(csvString);
 	return csvString;
@@ -255,16 +273,17 @@ void writeOnSDCard(String message)
 {
 	// Create/Open file 
 	String fileName = "batt" + String(fileNumber) + ".csv";
-	Serial.print("Apro file:"); Serial.print(fileName);
+	Serial.print(F("Apro file:")); Serial.print(fileName);
 	myFile = SD.open(fileName, FILE_WRITE);
 	if (myFile) {
 		myFile.println(message);
-		Serial.println("Scrivo su card");
+		Serial.println(F("Scrivo su card"));
 		myFile.close();
 	}
 
 	else {
-		Serial.println("error opening battery.cvs");
+		buzzerSensorActivity(5,400,1000,0);
+		Serial.println(F("error opening battery.cvs"));
 		myFile.close();
 	}
 
@@ -298,4 +317,18 @@ void clearSerialBuffer()
 		softwareSerial->read();
 	}
 }
+
+void buzzerSensorActivity(uint8_t numberOfCicle,unsigned int frequency, unsigned long velocity, uint16_t delayTime)
+{
+	if (_isBuzzerDisabled == true) { return; }
+	for (uint8_t i = 0; i < numberOfCicle; i++)
+	{
+		tone(_pin_buzzer, frequency, (velocity / 2));
+		delay(velocity);
+		noTone(_pin_buzzer);
+	}
+	delay(delayTime);
+}
+
+
 

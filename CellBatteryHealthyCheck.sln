@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2000
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Attiny85CheckBatterySolution", "Attiny85Solution\Attiny85Solution.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
 EndProject
@@ -18,11 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "circuits", "circuits", "{D1
 	ProjectSection(SolutionItems) = preProject
 		Circuit\Eagle\12VBridgeConnector.brd = Circuit\Eagle\12VBridgeConnector.brd
 		Circuit\Eagle\12VConnector.brd = Circuit\Eagle\12VConnector.brd
-		Circuit\Eagle\CheckBatteryVoltage.brd = Circuit\Eagle\CheckBatteryVoltage.brd
-		Circuit\Eagle\CheckBatteryVoltage12Volts.brd = Circuit\Eagle\CheckBatteryVoltage12Volts.brd
 		Circuit\Eagle\CheckBatteryVoltage12VoltsWithReset.brd = Circuit\Eagle\CheckBatteryVoltage12VoltsWithReset.brd
-		Circuit\Eagle\NanoDemultiplexerAndSDcard.brd = Circuit\Eagle\NanoDemultiplexerAndSDcard.brd
-		Circuit\Eagle\NanoDemultiplexerAndSDcard12Volts.brd = Circuit\Eagle\NanoDemultiplexerAndSDcard12Volts.brd
+		Circuit\Eagle\NanoDemultiplexerAndSDcardNew.brd = Circuit\Eagle\NanoDemultiplexerAndSDcardNew.brd
 	EndProjectSection
 EndProject
 Global

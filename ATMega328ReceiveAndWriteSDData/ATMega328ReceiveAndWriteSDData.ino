@@ -27,9 +27,8 @@ uint8_t _pin_buzzer = 8;
 //Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
 //const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
-const char* idBattery[numberOfBattery] = { "B0","B1","B2","B3" };//, "B2" ,"B4"};// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
-const double deltaVoltage[numberOfBattery] = { 0.1,0.3,0,0.1 };
-
+const char* idBattery[numberOfBattery] = { "B0" , "B1", "B2", "B3" };//, "B2" ,"B4"};// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
+const double deltaVoltage[numberOfBattery] = { 0.50, 0.65, 0.40, 0.30 };
 
 SoftwareSerial* softwareSerial = new SoftwareSerial(rxPin, 66);
 
@@ -43,8 +42,6 @@ bool _isBuzzerDisabled = true;
 
 
 void setup() {
-
-	demultiplexerPosition = 0;
 
 	pinMode(resetAttiny85TransistorPin, OUTPUT);
 
@@ -89,7 +86,7 @@ void setup() {
 	else
 	{
 		buzzerSensorActivity(5,400,1000,0);
-		Serial.println("SD card initialization failed");
+		Serial.println(F("SD card initialization failed"));
 		return;
 	}
 

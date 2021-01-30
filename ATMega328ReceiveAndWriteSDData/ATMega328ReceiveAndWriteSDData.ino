@@ -38,7 +38,7 @@ uint8_t demultiplexerPosition;
 
 uint8_t fileNumber = 0;
 
-bool _isBuzzerDisabled = true;
+bool _isBuzzerDisabled = false;
 
 
 void setup() {
@@ -81,7 +81,7 @@ void setup() {
 				fileNumber = i + 1;
 			}
 		}
-		//SD.remove("battery.csv");
+		writeOnSDCard("IDMessage;Battery;Value;Delta;Origin");
 	}
 	else
 	{
@@ -124,7 +124,7 @@ void loop() {
 
 		csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
-		if (csvString.length() != 9)
+		if (csvString.length() != 21)
 		{
 			Serial.print(F("disallineamento - ")); Serial.println(responseString);
 			return;
@@ -160,7 +160,7 @@ void loop() {
 
 				csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
 
-				if (csvString.length() == 9 && responseString.substring(5, 6) == _idMessage)
+				if (csvString.length() == 21 && responseString.substring(5, 6) == _idMessage)
 				{
 					writeOnSDCard(csvString);
 
@@ -201,7 +201,7 @@ double getNumber(String responseString)
 
 	//Serial.print(F("checkidCurrentMessage ->number : ")); Serial.println(number);
 
-	if (number > 0 && number < 100) {
+	if (number > 0.00f && number < 100.00f) {
 		return number;
 	}
 
@@ -260,7 +260,7 @@ String prepareStringForSDCard(String message, uint8_t demultiplexerPosition)
 	String csvString = "";
 	double number = getNumber(message);
 	number = number + deltaVoltage[demultiplexerPosition];
-	csvString = message.substring(5, 6) + ";" + String(idBattery[demultiplexerPosition]) + ";" + String(number);
+	csvString = message.substring(5, 6) + ";" + String(idBattery[demultiplexerPosition]) + ";" + String(number) + ";" + String(deltaVoltage[demultiplexerPosition]) + ";" + message;
 	Serial.println(csvString);
 	//writeOnSDCard(csvString);
 	return csvString;

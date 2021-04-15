@@ -1,0 +1,37 @@
+Max
+3.5 x 4 x 6 = 84
+Single : 14V
+
+
+Normal Standby
+3.3 x 4 x 6 =  79
+Single : 13.2V
+
+
+Empty StandBy
+3 x 4 x 6 = 72
+Single : 12V
+
+Under stress sana
+12.4 x 4 x 6 = 74.4V
+
+Delta funzionamento = 7V
+
+
+-----------------------------------------------------------
+
+Battery sample 
+
+11.5	1.13
+
+12.0	1.45
+
+12.5	2.05
+
+13.0	2.14
+
+13.5	2.74
+
+
+
+

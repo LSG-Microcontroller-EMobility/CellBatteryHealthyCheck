@@ -591,11 +591,6 @@ design rules under a new name.</description>
 <signal name="S$7">
 <contactref element="E$1" pad="6"/>
 </signal>
-<signal name="S$8">
-<contactref element="E$1" pad="5"/>
-<contactref element="E$3" pad="10"/>
-<wire x1="37.855" y1="8.77" x2="72.145" y2="50.68" width="0" layer="19" extent="1-1"/>
-</signal>
 <signal name="S$9">
 <contactref element="E$1" pad="4"/>
 </signal>
@@ -620,6 +615,11 @@ design rules under a new name.</description>
 <contactref element="E$8" pad="9"/>
 <contactref element="E$2" pad="9"/>
 <wire x1="61.985" y1="34.17" x2="110.245" y2="48.14" width="0" layer="19" extent="1-1"/>
+</signal>
+<signal name="S$8">
+<contactref element="E$3" pad="10"/>
+<contactref element="E$2" pad="5"/>
+<wire x1="56.905" y1="34.17" x2="72.145" y2="50.68" width="0" layer="19" extent="1-1"/>
 </signal>
 </signals>
 <mfgpreviewcolors>

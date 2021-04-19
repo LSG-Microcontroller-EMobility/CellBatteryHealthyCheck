@@ -19,7 +19,7 @@ void setup() {
 	//pinMode(CLKOUT, OUTPUT);  // Set pin as output
 	delay(1000);
 	idMessageCounter  = millis() / 100;
-	measure = ((3.7 / 1024)*analogRead(A2));// +0.04;
+	measure = ((4.7 / 1024)*analogRead(A2));
 	analogReference(EXTERNAL);
 }
 

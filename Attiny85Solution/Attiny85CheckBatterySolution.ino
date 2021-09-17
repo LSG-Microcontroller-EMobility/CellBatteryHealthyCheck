@@ -13,6 +13,7 @@ uint8_t idMessageCounter;
 SoftwareSerial softwareSerial(99, 3, false);
 
 void setup() {
+	analogReference(EXTERNAL);
 	softwareSerial.begin(600);
 	//softwareSerial.println("Begin");
 	//setPWM();
@@ -20,7 +21,7 @@ void setup() {
 	delay(1000);
 	idMessageCounter  = millis() / 100;
 	measure = ((4.7 / 1024)*analogRead(A2));
-	analogReference(EXTERNAL);
+	
 }
 
 // the loop function runs over and over again until power down or reset

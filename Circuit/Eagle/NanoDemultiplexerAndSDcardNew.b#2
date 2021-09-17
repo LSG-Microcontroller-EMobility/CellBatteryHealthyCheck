@@ -9,14 +9,14 @@
 </settings>
 <grid distance="0.08" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.1" altunitdist="mm" altunit="mm"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="no" active="yes"/>
+<layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
 <layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="yes"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
@@ -41,7 +41,7 @@
 <layer number="44" name="Drills" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="46" name="Milling" color="3" fill="1" visible="yes" active="yes"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="no" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="no" active="yes"/>
 <layer number="50" name="dxf" color="7" fill="1" visible="no" active="no"/>
@@ -200,6 +200,26 @@
 <hole x="65.5" y="45" drill="2"/>
 <text x="15.5" y="25.5" size="1.778" layer="21">Multiplexer</text>
 <text x="55.5" y="16" size="1.778" layer="21" rot="R90">SD-Card</text>
+<rectangle x1="2" y1="21.68" x2="10.32" y2="33.6" layer="16"/>
+<rectangle x1="28.08" y1="21.04" x2="41.12" y2="28.8" layer="16"/>
+<rectangle x1="32.56" y1="28.88" x2="41.12" y2="33.04" layer="16"/>
+<rectangle x1="2.16" y1="21.04" x2="40.56" y2="24.16" layer="16"/>
+<rectangle x1="9.04" y1="24.16" x2="14.08" y2="29.12" layer="16"/>
+<rectangle x1="47.44" y1="1.28" x2="61.92" y2="14.4" layer="16"/>
+<rectangle x1="47.2" y1="26.24" x2="62.24" y2="40.88" layer="16"/>
+<rectangle x1="43.68" y1="4.4" x2="48.08" y2="37.52" layer="16"/>
+<rectangle x1="60.32" y1="3.92" x2="65.76" y2="37.36" layer="16"/>
+<rectangle x1="57.68" y1="11.44" x2="61.2" y2="27.84" layer="16"/>
+<rectangle x1="47.76" y1="12.96" x2="52" y2="27.52" layer="16"/>
+<rectangle x1="57.2" y1="12.8" x2="58" y2="27.36" layer="16"/>
+<rectangle x1="44.08" y1="43.6" x2="63.2" y2="47.2" layer="16"/>
+<rectangle x1="50.08" y1="47.2" x2="63.44" y2="68.8" layer="16"/>
+<rectangle x1="62.56" y1="49.44" x2="66.16" y2="65.52" layer="16"/>
+<rectangle x1="62.96" y1="47.52" x2="66.16" y2="50.08" layer="16"/>
+<rectangle x1="41.6" y1="64.48" x2="51.44" y2="68.8" layer="16"/>
+<rectangle x1="32.24" y1="55.6" x2="36.32" y2="58.8" layer="16"/>
+<rectangle x1="31.68" y1="55.92" x2="36.72" y2="59.28" layer="16"/>
+<rectangle x1="4.24" y1="1.04" x2="38.24" y2="8.32" layer="16"/>
 </plain>
 <libraries>
 <library name="con-lstb">

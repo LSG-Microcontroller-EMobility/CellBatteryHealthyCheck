@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documents", "documents", "{02F040A5-E54A-42F0-8D80-BAC0347CC3DE}"
 	ProjectSection(SolutionItems) = preProject
 		Documents\BattLevel.txt = Documents\BattLevel.txt
+		percentageFormula.txt = percentageFormula.txt
 		Documents\schemaBatteria.png = Documents\schemaBatteria.png
 	EndProjectSection
 EndProject

@@ -1,0 +1,6 @@
+to check when a battery is to low you have to do:
+
+get the max and min battery value of a single B0-BX capture.then  make (minValue/maxValue)*100. if the result is less then 80% 
+battery is defected or you have a great imbalance.
+
+

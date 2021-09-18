@@ -85,7 +85,7 @@ void setup() {
 	}
 	else
 	{
-		buzzerSensorActivity(5,400,1000,0);
+		buzzerSensorActivity(5,400,1000,500);
 		Serial.println(F("SD card initialization failed"));
 		return;
 	}
@@ -176,11 +176,17 @@ void loop() {
 				
 			}
 		}
-		buzzerSensorActivity(15, 1000, 100, 0);
+		buzzerSensorActivity(15, 1000, 100, 100);
 		resetAttiny85();
 		clearSerialBuffer();
 		idCurrentMessage = "";
 		Serial.println(F("-----------------END------------------------"));
+	}
+	else 
+	{
+		buzzerSensorActivity(1, 400, 100, 100);
+		buzzerSensorActivity(1, 200, 100, 100);
+		buzzerSensorActivity(1, 500, 100, 100);
 	}
 
 }
@@ -206,6 +212,10 @@ double getNumber(String responseString)
 	}
 
 	//Serial.println(F("numero non valido"));
+
+	buzzerSensorActivity(1, 400, 100, 100);
+	buzzerSensorActivity(1, 200, 100, 100);
+	buzzerSensorActivity(1, 500, 100, 100);
 
 	return -1;
 }
@@ -279,7 +289,7 @@ void writeOnSDCard(String message)
 	}
 
 	else {
-		buzzerSensorActivity(5,400,1000,0);
+		buzzerSensorActivity(5,400,1000,500);
 		Serial.println(F("error opening battery.cvs"));
 		myFile.close();
 	}
@@ -315,16 +325,17 @@ void clearSerialBuffer()
 	}
 }
 
-void buzzerSensorActivity(uint8_t numberOfCicle,unsigned int frequency, unsigned long velocity, uint16_t delayTime)
+void buzzerSensorActivity(uint8_t numberOfCicle,unsigned int frequency, unsigned long duration, uint16_t pause)
 {
 	if (_isBuzzerDisabled == true) { return; }
 	for (uint8_t i = 0; i < numberOfCicle; i++)
 	{
-		tone(_pin_buzzer, frequency, (velocity / 2));
-		delay(velocity);
+		tone(_pin_buzzer, frequency, duration);
+		delay(duration);
+		delay(pause);
 		noTone(_pin_buzzer);
 	}
-	delay(delayTime);
+	delay(pause);
 }
 
 

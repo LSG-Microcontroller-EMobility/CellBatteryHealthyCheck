@@ -26,9 +26,11 @@ uint8_t _pin_buzzer = 8;
 
 //Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
-//const char* idBattery[numberOfBattery] = { "B1","B2","B3","B4","B5","B6","B7","B8","B9","B10","B11","B12","B13", "B14","B15","B16" };
-const char* idBattery[numberOfBattery] = { "B0" , "B1", "B2" };//, "B3" };//, "B2" ,"B4"};// , "B2", "B3", "B4", "B5", "B6", "B7" }; //"B2", "B3", "B4", "B5", "B6", "B7" };// , "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
-const double deltaVoltage[numberOfBattery] = { 0.00, 0.00, 0.00 };//, 0.30 };
+const char* idBattery[numberOfBattery] = { "B0" , "B1", "B2" };
+
+const double deltaVoltage[numberOfBattery] = { 0.00, 0.00, 0.00 };
+
+double storedBatteryValues[numberOfBattery] = { 0.00,0.00,0.00 };
 
 SoftwareSerial* softwareSerial = new SoftwareSerial(rxPin, 66);
 
@@ -39,6 +41,22 @@ uint8_t demultiplexerPosition;
 uint8_t fileNumber = 0;
 
 bool _isBuzzerDisabled = false;
+
+String idCurrentMessage = "";
+
+String responseString = "";
+
+String csvString = "";
+
+uint8_t numeroDisallineamenti = 0;
+
+String _idMessage = "";
+
+double batteryMaxLevel = 0.00f;
+
+double batteryMinLevel = 0.00f;
+
+uint8_t ii = 0;
 
 
 void setup() {
@@ -71,21 +89,21 @@ void setup() {
 
 	if (SD.begin())
 	{
-		Serial.println("SD card is ready to use.");
+		Serial.println(F("SD card is ready to use."));
 		for (uint8_t i = 0; i < 100; i++)
 		{
 			String fileName = "batt" + String(i) + ".csv";
 			if (SD.exists(fileName))
 			{
-				Serial.println("File esiste");
+				Serial.println(F("File esiste"));
 				fileNumber = i + 1;
 			}
 		}
-		writeOnSDCard("IDMessage;Battery;Value;Delta;Origin");
+		writeOnSDCard(F("IDMessage;Battery;Value;Delta;Origin"));
 	}
 	else
 	{
-		buzzerSensorActivity(5,400,1000,500);
+		buzzerSensorActivity(5, 400, 1000, 500);
 		Serial.println(F("SD card initialization failed"));
 		return;
 	}
@@ -94,17 +112,21 @@ void setup() {
 
 }
 
-String idCurrentMessage = "";
-
-String responseString = "";
-
-String csvString = "";
-
-uint8_t numeroDisallineamenti = 0;
-
-String _idMessage = "";
-
 void loop() {
+
+	/*checkBatteriesMaxLevel(storedBatteryValues[0]);
+
+	checkBatteriesMinLevel(storedBatteryValues[0]);*/
+
+	/*Serial.print(F("--------------------------------Il valore massimo e' : ")); Serial.println(batteryMaxLevel);
+
+	Serial.print(F("--------------------------------Il valore minimo e' : ")); Serial.println(batteryMinLevel);*/
+
+	//delay(1000);
+
+	//return;
+
+	storedBatteryValues[0] = '\0';
 
 	demultiplexerPosition = 0;
 
@@ -154,7 +176,7 @@ void loop() {
 			{
 				numeroDisallineamenti = 0;
 
-			
+
 
 				String csvString = "";
 
@@ -173,16 +195,21 @@ void loop() {
 					Serial.print(F("disallineamento - ")); Serial.println(responseString);
 				}
 
-				
+
 			}
 		}
 		buzzerSensorActivity(15, 1000, 100, 100);
+
+		checkBatteriesMaxLevel(storedBatteryValues[0]);
+
+		checkBatteriesMinLevel(storedBatteryValues[0]);
+
 		resetAttiny85();
 		clearSerialBuffer();
 		idCurrentMessage = "";
 		Serial.println(F("-----------------END------------------------"));
 	}
-	else 
+	else
 	{
 		buzzerSensorActivity(1, 400, 100, 100);
 		buzzerSensorActivity(1, 200, 100, 100);
@@ -272,6 +299,7 @@ String prepareStringForSDCard(String message, uint8_t demultiplexerPosition)
 	number = number + deltaVoltage[demultiplexerPosition];
 	csvString = message.substring(5, 6) + ";" + String(idBattery[demultiplexerPosition]) + ";" + String(number) + ";" + String(deltaVoltage[demultiplexerPosition]) + ";" + message;
 	Serial.println(csvString);
+	storedBatteryValues[demultiplexerPosition] = number;
 	//writeOnSDCard(csvString);
 	return csvString;
 }
@@ -289,7 +317,7 @@ void writeOnSDCard(String message)
 	}
 
 	else {
-		buzzerSensorActivity(5,400,1000,500);
+		buzzerSensorActivity(5, 400, 1000, 500);
 		Serial.println(F("error opening battery.cvs"));
 		myFile.close();
 	}
@@ -325,7 +353,7 @@ void clearSerialBuffer()
 	}
 }
 
-void buzzerSensorActivity(uint8_t numberOfCicle,unsigned int frequency, unsigned long duration, uint16_t pause)
+void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
 {
 	if (_isBuzzerDisabled == true) { return; }
 	for (uint8_t i = 0; i < numberOfCicle; i++)
@@ -338,5 +366,51 @@ void buzzerSensorActivity(uint8_t numberOfCicle,unsigned int frequency, unsigned
 	delay(pause);
 }
 
+void checkBatteriesMaxLevel(double value)
+{
+	//Serial.println(F(" entro"));
+	ii = 0;
+	while (ii < numberOfBattery)
+	{
+		//Serial.println(ii);
 
+		if (value >= storedBatteryValues[ii])
+		{
+			/*	Serial.print(F("if ")); Serial.print(value); Serial.print(F(" maggiore o uguale a ")); Serial.println(storedBatteryValues[ii]);
+				Serial.print(F("metto ")); Serial.print(value); Serial.println(F(" in batteryMaxLevel"));*/
+				//delay(1000);
+			batteryMaxLevel = value;
+			ii++;
+		}
+		else
+		{
+			//Serial.print(F("mando ")); Serial.print(storedBatteryValues[ii]); Serial.println(F(" in funzione"));
+			checkBatteriesMaxLevel(storedBatteryValues[ii]);
+		}
 
+	}
+
+}
+
+void checkBatteriesMinLevel(double value)
+{
+	//Serial.println(F(" entro"));
+	ii = 0;
+	while (ii < numberOfBattery)
+	{
+		//Serial.println(ii);
+		if (value <= storedBatteryValues[ii])
+		{
+			/*Serial.print(F("if ")); Serial.print(value); Serial.print(F(" maggiore o uguale a ")); Serial.println(storedBatteryValues[ii]);
+			Serial.print(F("metto ")); Serial.print(value); Serial.println(F(" in batteryMaxLevel"));
+			delay(1000);*/
+			batteryMinLevel = value;
+			ii++;
+		}
+		else
+		{
+			//Serial.print(F("mando ")); Serial.print(storedBatteryValues[ii]); Serial.println(F(" in funzione"));
+			checkBatteriesMinLevel(storedBatteryValues[ii]);
+		}
+	}
+}

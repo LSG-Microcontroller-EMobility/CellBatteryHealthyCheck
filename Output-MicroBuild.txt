@@ -1,0 +1,4 @@
+﻿Compiling 'Attiny85CheckBatterySolution' for 'ATtiny85 (ATtiny25/45/85)'
+Program size: 3,648 bytes (used 45% of a 8,192 byte maximum) (1.73 secs)
+Minimum Memory Usage: 180 bytes (35% of a 512 byte maximum)
+ 

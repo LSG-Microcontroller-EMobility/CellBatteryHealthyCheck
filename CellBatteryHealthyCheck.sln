@@ -31,16 +31,26 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "circuits", "circuits", "{D1
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x64.ActiveCfg = Debug|x64
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x64.Build.0 = Debug|x64
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x64.ActiveCfg = Release|x64
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x64.Build.0 = Release|x64
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
 		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Debug|x64.ActiveCfg = Debug|x64
+		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Debug|x64.Build.0 = Debug|x64
 		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Debug|x86.ActiveCfg = Debug|Win32
 		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Debug|x86.Build.0 = Debug|Win32
+		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Release|x64.ActiveCfg = Release|x64
+		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Release|x64.Build.0 = Release|x64
 		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Release|x86.ActiveCfg = Release|Win32
 		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection

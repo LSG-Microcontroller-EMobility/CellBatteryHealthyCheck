@@ -28,7 +28,7 @@ uint8_t _pin_buzzer = 8;
 
 const char* idBattery[numberOfBattery] = { "B0" , "B1", "B2" };
 
-const double deltaVoltage[numberOfBattery] = { 0.00, 0.00, 0.00 };
+const double deltaVoltage[numberOfBattery] = { 0.20, 0.25, 0.30 };
 
 double storedBatteryValues[numberOfBattery] = { 0.00,0.00,0.00 };
 
@@ -122,7 +122,9 @@ void loop() {
 
 	Serial.print(F("--------------------------------Il valore minimo e' : ")); Serial.println(batteryMinLevel);*/
 
-	//delay(1000);
+	//buzzerSensorActivity(5, 2500, 80, 200);
+
+	//delay(5000);
 
 	//return;
 
@@ -204,18 +206,39 @@ void loop() {
 
 		checkBatteriesMinLevel(storedBatteryValues[0]);
 
+		Serial.print(F("Max value : ")); Serial.println(batteryMaxLevel);
+
+		Serial.print(F("Min value : ")); Serial.println(batteryMinLevel);
+
+		if (thereAreUnbalancedBatteries(90))
+		{
+			Serial.println(F("Unbalanced batteries"));
+			buzzerSensorActivity(5, 2500, 80, 200);
+		}
+
 		resetAttiny85();
 		clearSerialBuffer();
 		idCurrentMessage = "";
 		Serial.println(F("-----------------END------------------------"));
 	}
-	else
-	{
-		buzzerSensorActivity(1, 400, 100, 100);
-		buzzerSensorActivity(1, 200, 100, 100);
-		buzzerSensorActivity(1, 500, 100, 100);
-	}
+	
 
+}
+
+/// <summary>
+/// maxPercentageForAlarm is the percentage of minValue in maxValue
+/// </summary>
+/// <param name="maxPercentageForAlarm"></param>
+/// <returns></returns>
+bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
+{
+	double percentageValue = (batteryMinLevel / batteryMaxLevel) * 100;
+	Serial.print(F("Percentage value : ")); Serial.print(percentageValue); Serial.println(F("%"));
+	if (percentageValue < maxPercentageForAlarm)
+	{
+		return true;
+	}
+	return false;
 }
 
 double getNumber(String responseString)

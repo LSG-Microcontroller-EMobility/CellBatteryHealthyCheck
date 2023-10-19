@@ -20,6 +20,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Attiny85CheckBatterySolution.ino" />
+    <ClCompile Include="Attiny85CheckBatterySolution.ino" />
   </ItemGroup>
 </Project>

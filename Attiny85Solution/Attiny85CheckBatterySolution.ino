@@ -20,8 +20,11 @@ void setup() {
 	//pinMode(CLKOUT, OUTPUT);  // Set pin as output
 	delay(1000);
 	idMessageCounter  = millis() / 100;
-	measure = ((4.3 / 1024)*analogRead(A2));
-	
+	for (int i = 0; i < 500; i++)
+	{
+		measure = measure + ((4.3 / 1024) * analogRead(A2));
+	}
+	measure = measure / 500;
 }
 
 // the loop function runs over and over again until power down or reset

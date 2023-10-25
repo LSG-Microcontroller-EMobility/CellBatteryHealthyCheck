@@ -183,8 +183,6 @@
 </text>
 <text x="50.357303125" y="20.9724125" size="1.27" layer="21" rot="R270">Batt.+</text>
 <text x="50.357303125" y="27.5724125" size="1.27" layer="21" rot="R270">Batt.-</text>
-<text x="15.8" y="25.8" size="1.016" layer="27">reset in</text>
-<text x="16.2" y="13" size="1.016" layer="27">serial to multi</text>
 </plain>
 <libraries>
 <library name="discrete">

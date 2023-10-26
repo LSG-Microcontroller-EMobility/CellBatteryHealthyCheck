@@ -176,8 +176,8 @@
 <text x="9.44" y="68" size="0.8128" layer="21">sck</text>
 <text x="4.76" y="68" size="0.8128" layer="21">mi</text>
 <text x="7.18" y="68" size="0.8128" layer="21">mo</text>
-<text x="23.88" y="68" size="0.8128" layer="21">5v</text>
-<text x="20.96" y="68.08" size="0.8128" layer="21">gnd</text>
+<text x="23.08" y="68.08" size="0.8128" layer="21">5v</text>
+<text x="20.24" y="68.08" size="0.8128" layer="21">gnd</text>
 <text x="11.78" y="68" size="0.8128" layer="21">reset</text>
 <text x="29.24" y="68.14" size="0.8128" layer="21">5v</text>
 <text x="31.76" y="68.28" size="0.8128" layer="21">gnd</text>
@@ -210,7 +210,7 @@
 <rectangle x1="4.24" y1="1.04" x2="38.24" y2="8.32" layer="16"/>
 <rectangle x1="1.04" y1="56.16" x2="2.96" y2="65.2" layer="16"/>
 <rectangle x1="3.92" y1="62.88" x2="26.4" y2="68.64" layer="16"/>
-<text x="17.22" y="68" size="0.8128" layer="21">buzzer</text>
+<text x="14.82" y="68" size="0.8128" layer="21">buzzer</text>
 <dimension x1="0" y1="70" x2="67.5" y2="70" x3="33.75" y3="82.96" textsize="1.778" layer="47"/>
 <dimension x1="0" y1="0" x2="0" y2="70" x3="-25.84" y3="35" textsize="1.778" layer="47"/>
 </plain>

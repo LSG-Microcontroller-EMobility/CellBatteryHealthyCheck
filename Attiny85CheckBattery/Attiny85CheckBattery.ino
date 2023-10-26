@@ -8,31 +8,30 @@
 #include <SoftwareSerial.h>
 //unsigned long pulse = 0;
 double measure = 0.00; 
-uint8_t idMessageCounter;
+unsigned long idMessageCounter;
 
 SoftwareSerial softwareSerial(99, 3, true);
 
 void setup() {
+  delay(900);
 	analogReference(EXTERNAL);
 	softwareSerial.begin(600);
 	//softwareSerial.println("Begin");
 	//setPWM();
 	//pinMode(CLKOUT, OUTPUT);  // Set pin as output
-	delay(1000);
-	idMessageCounter  = millis() / 100;
 	for (int i = 0; i < 500; i++)
 	{
 		measure = measure + ((4.3 / 1024) * analogRead(A2));
 	}
 	measure = measure / 500;
+  idMessageCounter  = millis() / 100UL;
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
 	//measure =((4.3 / 1024)*analogRead(A2));// -0.4;     
 	//delay(1000);
-	if (idMessageCounter == 100) idMessageCounter = 1;
-	if (idMessageCounter < 10) softwareSerial.print('0');
+  //softwareSerial.println(idMessageCounter);
 	softwareSerial.print(measure);
 	softwareSerial.print(idMessageCounter);
 	softwareSerial.print('*');

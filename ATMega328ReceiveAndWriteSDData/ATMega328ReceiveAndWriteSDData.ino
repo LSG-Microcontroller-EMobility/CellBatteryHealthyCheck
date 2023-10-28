@@ -80,8 +80,6 @@ void setup()
 	pinMode(_pin_buzzer, OUTPUT);
 
 	initFileCard();
-
-	resetAttiny85();
 }
 
 char fileName[15] = {};
@@ -122,6 +120,10 @@ void initFileCard()
 
 void loop()
 {
+	Serial.println(F("giro"));
+
+	resetAttiny85();
+
 	storedBatteryValues[0] = {};
 
 	setMultiplexer(demultiplexerPosition);
@@ -139,22 +141,31 @@ void loop()
 	if (!is_number(response))
 	{
 		Serial.println(F("resp.not.num"));
-		return;
+		// return;
 	}
 
 	_idMessage[0] = response[4];
+
 	Serial.println(_idMessage[0]);
+
 	char csvTextLayOut[21] = {};
 
 	prepareStringForSDCard(csvTextLayOut, response, demultiplexerPosition);
 
-	if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
+	if (csvTextLayOut[20] == '\0')
 	{
 		Serial.println(F("text.problem"));
 		return;
 	}
 
-	// writeOnSDCard(csvTextLayOut);
+	if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
+	{
+		Serial.println(F("text.problem"));
+		// return;
+	}
+
+	writeOnSDCard(csvTextLayOut);
+
 	if (demultiplexerPosition == 5)
 	{
 		demultiplexerPosition = 0;
@@ -163,8 +174,6 @@ void loop()
 	{
 		demultiplexerPosition++;
 	}
-
-	resetAttiny85();
 
 	/* 	if (responseString != "")
 		{
@@ -287,9 +296,7 @@ void getDataFromSerialBuffer(char *response)
 
 	softwareSerial.begin(600);
 
-	response[0] = {}; 
-
-	// clearSerialBuffer();
+	response[0] = {};
 
 	delay(500);
 
@@ -297,7 +304,6 @@ void getDataFromSerialBuffer(char *response)
 	{
 		softwareSerial.readStringUntil('*');
 	}
-
 	if (softwareSerial.available() > 0)
 	{
 		softwareSerial.readBytesUntil('*', response, 7);
@@ -428,13 +434,13 @@ void resetAttiny85()
 	digitalWrite(_pin_reset_attiny85, LOW);
 }
 
-/* void clearSerialBuffer()
-{
-	for (int i = 0; i < 100; i++)
-	{
-		softwareSerial->read();
-	}
-} */
+/* void clearSerialBuffer() */
+/* { */
+/* 	for (int i = 0; i < 100; i++) */
+/* 	{ */
+/* 		softwareSerial->read(); */
+/* 	} */
+/* }  */
 
 void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
 {

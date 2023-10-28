@@ -120,7 +120,7 @@ void initFileCard()
 
 void loop()
 {
-	Serial.println(F("giro"));
+	//Serial.println(F("giro"));
 
 	resetAttiny85();
 
@@ -128,6 +128,7 @@ void loop()
 
 	setMultiplexer(demultiplexerPosition);
 
+//for attiny85 reset delay 
 	delay(1000);
 
 	char response[7] = {};
@@ -141,7 +142,7 @@ void loop()
 	if (!is_number(response))
 	{
 		Serial.println(F("resp.not.num"));
-		// return;
+		return;
 	}
 
 	_idMessage[0] = response[4];
@@ -152,7 +153,7 @@ void loop()
 
 	prepareStringForSDCard(csvTextLayOut, response, demultiplexerPosition);
 
-	if (csvTextLayOut[20] == '\0')
+	if (csvTextLayOut[20] != '\0')
 	{
 		Serial.println(F("text.problem"));
 		return;
@@ -161,7 +162,7 @@ void loop()
 	if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
 	{
 		Serial.println(F("text.problem"));
-		// return;
+		return;
 	}
 
 	writeOnSDCard(csvTextLayOut);

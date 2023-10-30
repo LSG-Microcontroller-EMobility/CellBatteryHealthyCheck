@@ -18,8 +18,11 @@
     <ClInclude Include="__vm\.Attiny85Solution.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="__vm\.Attiny85CheckBattery.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Attiny85CheckBatterySolution.ino" />
+    <ClCompile Include="Attiny85CheckBattery.ino" />
   </ItemGroup>
 </Project>

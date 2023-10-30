@@ -26,21 +26,21 @@ uint8_t _pin_buzzer = 8;
 
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
-const char *idBattery[numberOfBattery] = {"B0", "B1", "B2", "B3", "B4", "B5"}; //, "B1", "B2" };
+const char* idBattery[numberOfBattery] = { "B0", "B1", "B2", "B3", "B4", "B5" }; //, "B1", "B2" };
 
-const double deltaVoltage[numberOfBattery] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00}; //, 0.00, 0.00 };
+const double deltaVoltage[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //, 0.00, 0.00 };
 
-double storedBatteryValues[numberOfBattery] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00}; //,0.00,0.00 };
+double storedBatteryValues[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //,0.00,0.00 };
 
 File myFile;
 
-uint8_t demultiplexerPosition = 0;
+uint8_t _demultiplexerPosition = 0;
 
 uint8_t fileNumber = 0;
 
-bool _isBuzzerDisabled = true;
+bool _is_buzzer_disabled = true;
 
-bool _isFileCardWritingDisable = true;
+bool _is_card_writing_disable = true;
 
 uint8_t numeroDisallineamenti = 0;
 
@@ -54,7 +54,6 @@ uint8_t ii = 0;
 
 void setup()
 {
-
 	pinMode(_pin_reset_attiny85, OUTPUT);
 
 	pinMode(selectorMultiPlex0, OUTPUT);
@@ -80,29 +79,41 @@ void setup()
 	pinMode(_pin_buzzer, OUTPUT);
 
 	initFileCard();
+
+#ifdef _DEBUG
+	Serial.println("restart");
+#endif // _DEBUG
+
 }
 
 char fileName[15] = {};
 
 void initFileCard()
 {
-	if (_isFileCardWritingDisable)
+	if (_is_card_writing_disable)
 		return;
 
 	if (SD.begin())
 	{
-		Serial.println(F("card ready"));
 
+#ifdef _DEBUG
+		Serial.println(F("card ready"));
+#endif // _DEBUG
 		for (uint8_t i = 0; i < 1; i++)
 		{
 			strcpy(fileName, "batt");
 			fileName[4] = (char)(i + 48);
 			strcat(fileName, ".csv");
 			strcat(fileName, "\0");
+#ifdef _DEBUG
 			Serial.println(fileName);
+#endif // _DEBUG
 			if (SD.exists(fileName))
 			{
+#ifdef _DEBUG
 				Serial.println(F("File esiste"));
+#endif // _DEBUG
+
 				SD.remove(fileName);
 			}
 		}
@@ -113,67 +124,76 @@ void initFileCard()
 	else
 	{
 		buzzerSensorActivity(5, 400, 1000, 500);
+
+#ifdef _DEBUG
 		Serial.println(F("SD card initialization failed"));
+#endif // _DEBUG
+
 		return;
 	}
 }
 
 void loop()
 {
-	//Serial.println(F("giro"));
-
 	resetAttiny85();
 
-	storedBatteryValues[0] = {};
+	setMultiplexer(_demultiplexerPosition);
 
-	setMultiplexer(demultiplexerPosition);
-
-//for attiny85 reset delay 
-	delay(1000);
+	//if there is an attiny85 reset delay put here same delay 
+	//delay(1000);
 
 	char response[7] = {};
 
 	getDataFromSerialBuffer(response);
 
-	/* Serial.print('#'); */
-	/* Serial.print(response); */
-	/* Serial.println('#'); */
+#ifdef _DEBUG
+	Serial.print('#');
+	Serial.print(response);
+	Serial.println('#');
+#endif
 
 	if (!is_number(response))
 	{
+#ifdef _DEBUG
 		Serial.println(F("resp.not.num"));
+#endif
+		_demultiplexerPosition = 0;
 		return;
 	}
 
 	_idMessage[0] = response[4];
 
-	Serial.println(_idMessage[0]);
-
 	char csvTextLayOut[21] = {};
 
-	prepareStringForSDCard(csvTextLayOut, response, demultiplexerPosition);
-
-	if (csvTextLayOut[20] != '\0')
-	{
-		Serial.println(F("text.problem"));
-		return;
-	}
+	prepareStringForSDCard(csvTextLayOut, response);
 
 	if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
 	{
 		Serial.println(F("text.problem"));
+		_demultiplexerPosition = 0;
 		return;
 	}
 
 	writeOnSDCard(csvTextLayOut);
 
-	if (demultiplexerPosition == 5)
+
+#ifdef _DEBUG
+	printStoredBatteryValuesArray();
+#endif // _DEBUG
+
+
+	if (_demultiplexerPosition == 5)
 	{
-		demultiplexerPosition = 0;
+		printStoredBatteryValuesArray();
+		checkActivities();
+		_demultiplexerPosition = 0;
+		for (uint8_t i = 0; i < 6; i++){
+			storedBatteryValues[i] = 0.00;
+		}
 	}
 	else
 	{
-		demultiplexerPosition++;
+		_demultiplexerPosition++;
 	}
 
 	/* 	if (responseString != "")
@@ -261,9 +281,45 @@ void loop()
 		} */
 }
 
-bool is_number(const String &s)
+
+void printStoredBatteryValuesArray()
 {
-	char *end = nullptr;
+	for (uint8_t i = 0; i < 6; i++)
+	{
+		Serial.println(storedBatteryValues[i]);
+	}
+}
+
+
+void checkActivities()
+{
+	checkBatteriesMaxLevel(storedBatteryValues[0]);
+
+	checkBatteriesMinLevel(storedBatteryValues[0]);
+
+
+#ifdef _DEBUG
+	Serial.print(F("Mx.v:"));
+	Serial.println(batteryMaxLevel);
+#endif // _DEBUG
+
+#ifdef _DEBUG
+	Serial.print(F("M.v:"));
+	Serial.println(batteryMinLevel);
+#endif // _DEBUG
+
+	if (thereAreUnbalancedBatteries(90))
+	{
+#ifdef _DEBUG
+		Serial.println(F("Unbalanced batteries"));
+#endif // _DEBUG
+		buzzerSensorActivity(5, 2500, 80, 200);
+	}
+}
+
+bool is_number(const String& s)
+{
+	char* end = nullptr;
 	double val = strtod(s.c_str(), &end);
 	return end != s.c_str() && *end == '\0' /* && val != 0.00 */;
 }
@@ -276,9 +332,13 @@ bool is_number(const String &s)
 bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
 {
 	double percentageValue = (batteryMinLevel / batteryMaxLevel) * 100;
+
+#ifdef _DEBUG
 	Serial.print(F("Percentage value : "));
 	Serial.print(percentageValue);
 	Serial.println(F("%"));
+#endif // _DEBUG
+
 	if (percentageValue < maxPercentageForAlarm)
 	{
 		return true;
@@ -286,12 +346,12 @@ bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
 	return false;
 }
 
-double getNumber(char *response)
+double getNumber(char* response)
 {
 	return atof(response);
 }
 
-void getDataFromSerialBuffer(char *response)
+void getDataFromSerialBuffer(char* response)
 {
 	SoftwareSerial softwareSerial(3, 99);
 
@@ -309,15 +369,18 @@ void getDataFromSerialBuffer(char *response)
 	{
 		softwareSerial.readBytesUntil('*', response, 7);
 
+#ifdef _DEBUG
 		Serial.print(F("data from attiny85 : "));
 		Serial.println(response);
+#endif // _DEBUG
+
 	}
 }
 
 void setMultiplexer(int channel)
 {
 	// Serial.print("setMultiplexer channel : "); Serial.println(channel);
-	int controlPin[] = {selectorMultiPlex0, selectorMultiPlex1, selectorMultiPlex2, selectorMultiPlex3};
+	int controlPin[] = { selectorMultiPlex0, selectorMultiPlex1, selectorMultiPlex2, selectorMultiPlex3 };
 
 	int muxChannel[16][4] = {
 		{0, 0, 0, 0}, // channel 0
@@ -345,7 +408,7 @@ void setMultiplexer(int channel)
 	}
 }
 
-void prepareStringForSDCard(char *csvTextLayOut, char *response, uint8_t demultiplexerPosition)
+void prepareStringForSDCard(char* csvTextLayOut, char* response)
 {
 	char num_to_string[4] = {};
 
@@ -355,17 +418,17 @@ void prepareStringForSDCard(char *csvTextLayOut, char *response, uint8_t demulti
 
 	double number = getNumber(response);
 
-	Serial.println(number);
+	//Serial.println(number);
 
-	number = number + deltaVoltage[demultiplexerPosition];
+	number = number + deltaVoltage[_demultiplexerPosition];
 
 	dtostrf(number, 4, 2, num_to_string);
 
-	dtostrf(deltaVoltage[demultiplexerPosition], 4, 2, deltaVoltage_to_string);
+	dtostrf(deltaVoltage[_demultiplexerPosition], 4, 2, deltaVoltage_to_string);
 
 	csvTextLayOut[0] = _idMessage[0];
 	strcat(csvTextLayOut, ";");
-	strcat(csvTextLayOut, idBattery[demultiplexerPosition]);
+	strcat(csvTextLayOut, idBattery[_demultiplexerPosition]);
 	strcat(csvTextLayOut, ";");
 	strcat(csvTextLayOut, num_to_string);
 	strcat(csvTextLayOut, ";");
@@ -374,8 +437,10 @@ void prepareStringForSDCard(char *csvTextLayOut, char *response, uint8_t demulti
 	strcat(csvTextLayOut, response);
 	strcat(csvTextLayOut, _idMessage);
 	csvTextLayOut[20] = '\0';
+#ifdef _DEBUG
 	Serial.println(csvTextLayOut);
-	storedBatteryValues[demultiplexerPosition] = number;
+#endif // _DEBUG
+	storedBatteryValues[_demultiplexerPosition] = number;
 }
 /*
 String prepareStringForSDCardOld(String message, uint8_t demultiplexerPosition)
@@ -390,10 +455,9 @@ String prepareStringForSDCardOld(String message, uint8_t demultiplexerPosition)
 	return csvString;
 } */
 
-void writeOnSDCard(char *message)
+void writeOnSDCard(char* message)
 {
-	if (_isFileCardWritingDisable)
-		return;
+	if (_is_card_writing_disable)return;
 	// Create/Open file
 	// String fileName = "batt" + String(fileNumber) + ".csv";
 	// Serial.print(F("Apro file:"));
@@ -402,14 +466,17 @@ void writeOnSDCard(char *message)
 	if (myFile)
 	{
 		myFile.println(message);
+#ifdef _DEBUG
 		Serial.println(F("Scrivo"));
+#endif // _DEBUG
 		myFile.close();
 	}
-
 	else
 	{
 		buzzerSensorActivity(5, 400, 1000, 500);
+#ifdef _DEBUG
 		Serial.println(F("error opening battery.cvs"));
+#endif // _DEBUG
 		myFile.close();
 	}
 
@@ -435,17 +502,9 @@ void resetAttiny85()
 	digitalWrite(_pin_reset_attiny85, LOW);
 }
 
-/* void clearSerialBuffer() */
-/* { */
-/* 	for (int i = 0; i < 100; i++) */
-/* 	{ */
-/* 		softwareSerial->read(); */
-/* 	} */
-/* }  */
-
 void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
 {
-	if (_isBuzzerDisabled)
+	if (_is_buzzer_disabled)
 		return;
 
 	for (uint8_t i = 0; i < numberOfCicle; i++)
@@ -460,7 +519,6 @@ void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigne
 
 void checkBatteriesMaxLevel(double value)
 {
-	// Serial.println(F(" entro"));
 	ii = 0;
 	while (ii < numberOfBattery)
 	{
@@ -468,15 +526,22 @@ void checkBatteriesMaxLevel(double value)
 
 		if (value >= storedBatteryValues[ii])
 		{
-			/*	Serial.print(F("if ")); Serial.print(value); Serial.print(F(" maggiore o uguale a ")); Serial.println(storedBatteryValues[ii]);
-				Serial.print(F("metto ")); Serial.print(value); Serial.println(F(" in batteryMaxLevel"));*/
-			// delay(1000);
+
+#ifdef _DEBUG
+			/*Serial.print(F("if ")); Serial.print(value); Serial.print(F(" maggiore o uguale a ")); Serial.println(storedBatteryValues[ii]);
+			Serial.print(F("metto ")); Serial.print(value); Serial.println(F(" in batteryMaxLevel"));
+			 delay(1000);*/
+#endif // _DEBUG
+
+
 			batteryMaxLevel = value;
 			ii++;
 		}
 		else
 		{
+#ifdef _DEBUG
 			// Serial.print(F("mando ")); Serial.print(storedBatteryValues[ii]); Serial.println(F(" in funzione"));
+#endif // _DEBUG
 			checkBatteriesMaxLevel(storedBatteryValues[ii]);
 		}
 	}
@@ -484,22 +549,25 @@ void checkBatteriesMaxLevel(double value)
 
 void checkBatteriesMinLevel(double value)
 {
-	// Serial.println(F(" entro"));
 	ii = 0;
 	while (ii < numberOfBattery)
 	{
-		// Serial.println(ii);
 		if (value <= storedBatteryValues[ii])
 		{
+
+#ifdef _DEBUG
 			/*Serial.print(F("if ")); Serial.print(value); Serial.print(F(" maggiore o uguale a ")); Serial.println(storedBatteryValues[ii]);
 			Serial.print(F("metto ")); Serial.print(value); Serial.println(F(" in batteryMaxLevel"));
 			delay(1000);*/
+#endif // _DEBUG
 			batteryMinLevel = value;
 			ii++;
 		}
 		else
 		{
+#ifdef _DEBUG
 			// Serial.print(F("mando ")); Serial.print(storedBatteryValues[ii]); Serial.println(F(" in funzione"));
+#endif // _DEBUG
 			checkBatteriesMinLevel(storedBatteryValues[ii]);
 		}
 	}

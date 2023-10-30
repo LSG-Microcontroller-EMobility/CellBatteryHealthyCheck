@@ -15,11 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ATMega328ReceiveAndWriteSDData.ino" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="__vm\.ATMega328ReceiveAndWriteSDData.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ATMega328ReceiveAndWriteSDData.ino" />
   </ItemGroup>
 </Project>

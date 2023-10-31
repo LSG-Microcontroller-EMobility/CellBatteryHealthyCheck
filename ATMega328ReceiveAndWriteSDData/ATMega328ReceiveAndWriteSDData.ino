@@ -3,10 +3,11 @@
  Created:	3/8/2020 1:53:08 AM
  Author:	luigi.santagada
 */
-#include <SoftwareSerial.h>
+#include "localLibraries/SoftwareSerial.h"
 #include <SD.h>
 #include <SPI.h>
 #include <string.h>
+#include <DFRobotDFPlayerMini.h>
 
 const uint8_t selectorMultiPlex0 = 4;
 
@@ -24,13 +25,14 @@ const uint8_t _pin_reset_attiny85 = 9;
 
 uint8_t _pin_buzzer = 8;
 
+//-----------------------    ATTENZIONE PIN ASSEGNATI !!!!!!!   -------------------------------
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
 const char* idBattery[numberOfBattery] = { "B0", "B1", "B2", "B3", "B4", "B5" }; //, "B1", "B2" };
 
-const double deltaVoltage[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //, 0.00, 0.00 };
+const float deltaVoltage[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //, 0.00, 0.00 };
 
-double storedBatteryValues[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //,0.00,0.00 };
+float storedBatteryValues[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //,0.00,0.00 };
 
 File myFile;
 
@@ -40,15 +42,15 @@ uint8_t fileNumber = 0;
 
 bool _is_buzzer_disabled = true;
 
-bool _is_card_writing_disable = true;
+bool _is_card_writing_disable = false;
 
 uint8_t numeroDisallineamenti = 0;
 
 char _idMessage[1] = {};
 
-double batteryMaxLevel = 0.00f;
+float batteryMaxLevel = 0.00f;
 
-double batteryMinLevel = 0.00f;
+float batteryMinLevel = 0.00f;
 
 uint8_t ii = 0;
 
@@ -123,12 +125,11 @@ void initFileCard()
 	}
 	else
 	{
-		buzzerSensorActivity(5, 400, 1000, 500);
+		//buzzerSensorActivity(5, 400, 1000, 500);
 
 #ifdef _DEBUG
-		Serial.println(F("SD card initialization failed"));
+		Serial.println(F("SD failed"));
 #endif // _DEBUG
-
 		return;
 	}
 }
@@ -147,9 +148,9 @@ void loop()
 	getDataFromSerialBuffer(response);
 
 #ifdef _DEBUG
-	Serial.print('#');
+	Serial.print(F("#"));
 	Serial.print(response);
-	Serial.println('#');
+	Serial.println(F("#"));
 #endif
 
 	if (!is_number(response))
@@ -167,6 +168,10 @@ void loop()
 
 	prepareStringForSDCard(csvTextLayOut, response);
 
+	//delay(3000);
+	playMessageOnDPlayer(1);
+	//delay(3000);
+
 	if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
 	{
 		Serial.println(F("text.problem"));
@@ -176,15 +181,13 @@ void loop()
 
 	writeOnSDCard(csvTextLayOut);
 
-
-#ifdef _DEBUG
-	printStoredBatteryValuesArray();
-#endif // _DEBUG
-
-
 	if (_demultiplexerPosition == 5)
 	{
+
+#ifdef _DEBUG
 		printStoredBatteryValuesArray();
+#endif // _DEBUG
+
 		checkActivities();
 		_demultiplexerPosition = 0;
 		for (uint8_t i = 0; i < 6; i++){
@@ -313,14 +316,14 @@ void checkActivities()
 #ifdef _DEBUG
 		Serial.println(F("Unbalanced batteries"));
 #endif // _DEBUG
-		buzzerSensorActivity(5, 2500, 80, 200);
+		//buzzerSensorActivity(5, 2500, 80, 200);
 	}
 }
 
 bool is_number(const String& s)
 {
 	char* end = nullptr;
-	double val = strtod(s.c_str(), &end);
+	float val = strtod(s.c_str(), &end);
 	return end != s.c_str() && *end == '\0' /* && val != 0.00 */;
 }
 
@@ -331,7 +334,7 @@ bool is_number(const String& s)
 /// <returns></returns>
 bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
 {
-	double percentageValue = (batteryMinLevel / batteryMaxLevel) * 100;
+	float percentageValue = (batteryMinLevel / batteryMaxLevel) * 100;
 
 #ifdef _DEBUG
 	Serial.print(F("Percentage value : "));
@@ -346,7 +349,7 @@ bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
 	return false;
 }
 
-double getNumber(char* response)
+float getNumber(char* response)
 {
 	return atof(response);
 }
@@ -416,7 +419,7 @@ void prepareStringForSDCard(char* csvTextLayOut, char* response)
 
 	response[4] = '\0';
 
-	double number = getNumber(response);
+	float number = getNumber(response);
 
 	//Serial.println(number);
 
@@ -473,7 +476,7 @@ void writeOnSDCard(char* message)
 	}
 	else
 	{
-		buzzerSensorActivity(5, 400, 1000, 500);
+		//buzzerSensorActivity(5, 400, 1000, 500);
 #ifdef _DEBUG
 		Serial.println(F("error opening battery.cvs"));
 #endif // _DEBUG
@@ -502,22 +505,22 @@ void resetAttiny85()
 	digitalWrite(_pin_reset_attiny85, LOW);
 }
 
-void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
-{
-	if (_is_buzzer_disabled)
-		return;
+//void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
+//{
+//	if (_is_buzzer_disabled)
+//		return;
+//
+//	for (uint8_t i = 0; i < numberOfCicle; i++)
+//	{
+//		tone(_pin_buzzer, frequency, duration);
+//		delay(duration);
+//		delay(pause);
+//		noTone(_pin_buzzer);
+//	}
+//	delay(pause);
+//}
 
-	for (uint8_t i = 0; i < numberOfCicle; i++)
-	{
-		tone(_pin_buzzer, frequency, duration);
-		delay(duration);
-		delay(pause);
-		noTone(_pin_buzzer);
-	}
-	delay(pause);
-}
-
-void checkBatteriesMaxLevel(double value)
+void checkBatteriesMaxLevel(float value)
 {
 	ii = 0;
 	while (ii < numberOfBattery)
@@ -547,7 +550,7 @@ void checkBatteriesMaxLevel(double value)
 	}
 }
 
-void checkBatteriesMinLevel(double value)
+void checkBatteriesMinLevel(float value)
 {
 	ii = 0;
 	while (ii < numberOfBattery)
@@ -571,4 +574,12 @@ void checkBatteriesMinLevel(double value)
 			checkBatteriesMinLevel(storedBatteryValues[ii]);
 		}
 	}
+}
+
+void playMessageOnDPlayer(uint8_t messageCode)
+{
+	SoftwareSerial mySoftwareSerial(A1, A2); // rx, tx
+	delay(500);
+	mySoftwareSerial.begin(9600);
+	delay(500);
 }

@@ -13,13 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="localLibraries">
+      <UniqueIdentifier>{c8eb8aed-168f-461e-8b69-194d990929d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.ATMega328ReceiveAndWriteSDData.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="localLibraries\SoftwareSerial.h">
+      <Filter>localLibraries</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ATMega328ReceiveAndWriteSDData.ino" />
+    <ClCompile Include="localLibraries\SoftwareSerial.cpp">
+      <Filter>localLibraries</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

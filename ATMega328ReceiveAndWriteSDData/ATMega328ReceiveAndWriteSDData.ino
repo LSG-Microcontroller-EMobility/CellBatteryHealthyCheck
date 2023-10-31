@@ -34,8 +34,6 @@ const float deltaVoltage[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
 
 float storedBatteryValues[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //,0.00,0.00 };
 
-File myFile;
-
 uint8_t _demultiplexerPosition = 0;
 
 uint8_t fileNumber = 0;
@@ -83,21 +81,19 @@ void setup()
 	initFileCard();
 
 #ifdef _DEBUG
-	Serial.println("restart");
+	Serial.println(F("restart"));
 #endif // _DEBUG
-
+	playMessageOnDPlayer(6);
 }
 
 char fileName[15] = {};
 
 void initFileCard()
 {
-	if (_is_card_writing_disable)
-		return;
+	if (_is_card_writing_disable) return;
 
 	if (SD.begin())
 	{
-
 #ifdef _DEBUG
 		Serial.println(F("card ready"));
 #endif // _DEBUG
@@ -130,6 +126,7 @@ void initFileCard()
 #ifdef _DEBUG
 		Serial.println(F("SD failed"));
 #endif // _DEBUG
+		playMessageOnDPlayer(4);
 		return;
 	}
 }
@@ -148,13 +145,14 @@ void loop()
 	getDataFromSerialBuffer(response);
 
 #ifdef _DEBUG
-	Serial.print(F("#"));
+	/*Serial.print(F("#"));
 	Serial.print(response);
-	Serial.println(F("#"));
+	Serial.println(F("#"));*/
 #endif
 
 	if (!is_number(response))
 	{
+		playMessageOnDPlayer(3);
 #ifdef _DEBUG
 		Serial.println(F("resp.not.num"));
 #endif
@@ -169,7 +167,7 @@ void loop()
 	prepareStringForSDCard(csvTextLayOut, response);
 
 	//delay(3000);
-	playMessageOnDPlayer(1);
+	//playMessageOnDPlayer(1);
 	//delay(3000);
 
 	if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
@@ -190,7 +188,7 @@ void loop()
 
 		checkActivities();
 		_demultiplexerPosition = 0;
-		for (uint8_t i = 0; i < 6; i++){
+		for (uint8_t i = 0; i < 6; i++) {
 			storedBatteryValues[i] = 0.00;
 		}
 	}
@@ -316,6 +314,7 @@ void checkActivities()
 #ifdef _DEBUG
 		Serial.println(F("Unbalanced batteries"));
 #endif // _DEBUG
+
 		//buzzerSensorActivity(5, 2500, 80, 200);
 	}
 }
@@ -460,6 +459,8 @@ String prepareStringForSDCardOld(String message, uint8_t demultiplexerPosition)
 
 void writeOnSDCard(char* message)
 {
+	File myFile;
+
 	if (_is_card_writing_disable)return;
 	// Create/Open file
 	// String fileName = "batt" + String(fileNumber) + ".csv";
@@ -480,6 +481,7 @@ void writeOnSDCard(char* message)
 #ifdef _DEBUG
 		Serial.println(F("error opening battery.cvs"));
 #endif // _DEBUG
+		playMessageOnDPlayer(4);
 		myFile.close();
 	}
 
@@ -578,8 +580,28 @@ void checkBatteriesMinLevel(float value)
 
 void playMessageOnDPlayer(uint8_t messageCode)
 {
+	DFRobotDFPlayerMini myDFPlayer;
 	SoftwareSerial mySoftwareSerial(A1, A2); // rx, tx
 	delay(500);
 	mySoftwareSerial.begin(9600);
 	delay(500);
+
+	if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
+
+#ifdef _DEBUG
+		//Serial.println(F("Unable to begin:"));
+		//Serial.println(F("1.Please recheck the connection!"));
+		//Serial.println(F("2.Please insert the SD card!"));
+#endif // _DEBUG
+
+		while (true);
+	}
+
+#ifdef _DEBUG
+	Serial.println(F("DFPlayer Mini online."));
+#endif // _DEBUG
+	myDFPlayer.volume(10);  //Set volume value. From 0 to 30
+
+	myDFPlayer.play(messageCode);  //Play next mp3 every 3 second.
+	//delay(5000);
 }

@@ -185,6 +185,14 @@
     <ClInclude Include="localLibraries\SoftwareSerial.h" />
     <ClInclude Include="__vm\.ATMega328ReceiveAndWriteSDData.vsarduino.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="mp3\0010_dislivello.mp3" />
+    <Media Include="mp3\0020_problemaInTraccia.mp3" />
+    <Media Include="mp3\0030_problemaNumero.mp3" />
+    <Media Include="mp3\0040_schedaMemoria.mp3" />
+    <Media Include="mp3\0050_datiSufficienti.mp3" />
+    <Media Include="mp3\0060_sistemaInizializzato.mp3" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

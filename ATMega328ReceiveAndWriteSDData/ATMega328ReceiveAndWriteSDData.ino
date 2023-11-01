@@ -80,9 +80,9 @@ void setup()
 
 	initFileCard();
 
-#ifdef _DEBUG
+
 	Serial.println(F("restart"));
-#endif // _DEBUG
+
 	playMessageOnDPlayer(6);
 }
 
@@ -133,6 +133,8 @@ void initFileCard()
 
 void loop()
 {
+	Serial.println(F("giro"));
+
 	resetAttiny85();
 
 	setMultiplexer(_demultiplexerPosition);
@@ -140,14 +142,14 @@ void loop()
 	//if there is an attiny85 reset delay put here same delay 
 	//delay(1000);
 
-	char response[7] = {};
+	char response[6] = {};
 
 	getDataFromSerialBuffer(response);
 
 #ifdef _DEBUG
-	/*Serial.print(F("#"));
+	Serial.print(F("#"));
 	Serial.print(response);
-	Serial.println(F("#"));*/
+	Serial.println(F("#"));
 #endif
 
 	if (!is_number(response))
@@ -166,14 +168,11 @@ void loop()
 
 	prepareStringForSDCard(csvTextLayOut, response);
 
-	//delay(3000);
-	//playMessageOnDPlayer(1);
-	//delay(3000);
-
 	if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
 	{
 		Serial.println(F("text.problem"));
 		_demultiplexerPosition = 0;
+		playMessageOnDPlayer(2);
 		return;
 	}
 
@@ -309,12 +308,12 @@ void checkActivities()
 	Serial.println(batteryMinLevel);
 #endif // _DEBUG
 
-	if (thereAreUnbalancedBatteries(90))
+	if (thereAreUnbalancedBatteries(5))
 	{
 #ifdef _DEBUG
 		Serial.println(F("Unbalanced batteries"));
 #endif // _DEBUG
-
+		playMessageOnDPlayer(1);
 		//buzzerSensorActivity(5, 2500, 80, 200);
 	}
 }
@@ -326,14 +325,9 @@ bool is_number(const String& s)
 	return end != s.c_str() && *end == '\0' /* && val != 0.00 */;
 }
 
-/// <summary>
-/// maxPercentageForAlarm is the percentage of minValue in maxValue
-/// </summary>
-/// <param name="maxPercentageForAlarm"></param>
-/// <returns></returns>
 bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
 {
-	float percentageValue = (batteryMinLevel / batteryMaxLevel) * 100;
+	float percentageValue = 100 - ((batteryMinLevel / batteryMaxLevel) * 100);
 
 #ifdef _DEBUG
 	Serial.print(F("Percentage value : "));
@@ -341,7 +335,7 @@ bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
 	Serial.println(F("%"));
 #endif // _DEBUG
 
-	if (percentageValue < maxPercentageForAlarm)
+	if (percentageValue > maxPercentageForAlarm)
 	{
 		return true;
 	}
@@ -359,7 +353,7 @@ void getDataFromSerialBuffer(char* response)
 
 	softwareSerial.begin(600);
 
-	response[0] = {};
+	//response[0] = {};
 
 	delay(500);
 
@@ -369,9 +363,10 @@ void getDataFromSerialBuffer(char* response)
 	}
 	if (softwareSerial.available() > 0)
 	{
-		softwareSerial.readBytesUntil('*', response, 7);
+		softwareSerial.readBytesUntil('*', response, 6);
 
 #ifdef _DEBUG
+		response[6] = '\0';
 		Serial.print(F("data from attiny85 : "));
 		Serial.println(response);
 #endif // _DEBUG
@@ -507,20 +502,20 @@ void resetAttiny85()
 	digitalWrite(_pin_reset_attiny85, LOW);
 }
 
-//void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
-//{
-//	if (_is_buzzer_disabled)
-//		return;
-//
-//	for (uint8_t i = 0; i < numberOfCicle; i++)
-//	{
-//		tone(_pin_buzzer, frequency, duration);
-//		delay(duration);
-//		delay(pause);
-//		noTone(_pin_buzzer);
-//	}
-//	delay(pause);
-//}
+void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
+{
+	if (_is_buzzer_disabled)
+		return;
+
+	for (uint8_t i = 0; i < numberOfCicle; i++)
+	{
+		tone(_pin_buzzer, frequency, duration);
+		delay(duration);
+		delay(pause);
+		noTone(_pin_buzzer);
+	}
+	delay(pause);
+}
 
 void checkBatteriesMaxLevel(float value)
 {
@@ -589,11 +584,11 @@ void playMessageOnDPlayer(uint8_t messageCode)
 	if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
 
 #ifdef _DEBUG
-		//Serial.println(F("Unable to begin:"));
-		//Serial.println(F("1.Please recheck the connection!"));
-		//Serial.println(F("2.Please insert the SD card!"));
+		Serial.println(F("Unable to begin:"));
+		Serial.println(F("1.Please recheck the connection!"));
+		Serial.println(F("2.Please insert the SD card!"));
 #endif // _DEBUG
-
+		buzzerSensorActivity(5, 2500, 80, 200);
 		while (true);
 	}
 

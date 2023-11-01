@@ -16,6 +16,9 @@
     <Filter Include="localLibraries">
       <UniqueIdentifier>{c8eb8aed-168f-461e-8b69-194d990929d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{1ac45dc4-7215-4be0-8abe-de531552b14c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.ATMega328ReceiveAndWriteSDData.vsarduino.h">
@@ -30,5 +33,25 @@
     <ClCompile Include="localLibraries\SoftwareSerial.cpp">
       <Filter>localLibraries</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="mp3\0060_sistemaInizializzato.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0050_datiSufficienti.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0040_schedaMemoria.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0030_problemaNumero.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0010_dislivello.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0020_problemaInTraccia.mp3">
+      <Filter>audio</Filter>
+    </Media>
   </ItemGroup>
 </Project>

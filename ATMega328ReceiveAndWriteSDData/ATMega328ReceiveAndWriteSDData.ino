@@ -54,6 +54,8 @@ uint8_t ii = 0;
 
 void setup()
 {
+	delay(2000);
+
 	pinMode(_pin_reset_attiny85, OUTPUT);
 
 	pinMode(selectorMultiPlex0, OUTPUT);
@@ -94,9 +96,9 @@ void initFileCard()
 
 	if (SD.begin())
 	{
-#ifdef _DEBUG
-		Serial.println(F("card ready"));
-#endif // _DEBUG
+
+		//Serial.println(F("card ready"));
+
 		for (uint8_t i = 0; i < 1; i++)
 		{
 			strcpy(fileName, "batt");
@@ -281,7 +283,6 @@ void loop()
 		} */
 }
 
-
 void printStoredBatteryValuesArray()
 {
 	for (uint8_t i = 0; i < 6; i++)
@@ -289,7 +290,6 @@ void printStoredBatteryValuesArray()
 		Serial.println(storedBatteryValues[i]);
 	}
 }
-
 
 void checkActivities()
 {
@@ -462,6 +462,7 @@ void writeOnSDCard(char* message)
 	// Serial.print(F("Apro file:"));
 	// Serial.println(fileName);
 	myFile = SD.open(fileName, FILE_WRITE);
+	delay(500);
 	if (myFile)
 	{
 		myFile.println(message);
@@ -504,8 +505,7 @@ void resetAttiny85()
 
 void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
 {
-	if (_is_buzzer_disabled)
-		return;
+	if (_is_buzzer_disabled)return;
 
 	for (uint8_t i = 0; i < numberOfCicle; i++)
 	{
@@ -595,8 +595,11 @@ void playMessageOnDPlayer(uint8_t messageCode)
 #ifdef _DEBUG
 	Serial.println(F("DFPlayer Mini online."));
 #endif // _DEBUG
-	myDFPlayer.volume(10);  //Set volume value. From 0 to 30
+	uint16_t volume = (30.00 / 1024.00) * analogRead(A3);
+	
+	//Serial.println(volume);
+
+	myDFPlayer.volume(volume);  //Set volume value. From 0 to 30
 
 	myDFPlayer.play(messageCode);  //Play next mp3 every 3 second.
-	//delay(5000);
 }

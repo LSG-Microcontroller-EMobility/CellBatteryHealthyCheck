@@ -179,6 +179,8 @@ void loop()
 		max_attempts++;
 	}
 
+
+
 	if (!is_number(response))
 	{
 		playMessageOnDPlayer(3);

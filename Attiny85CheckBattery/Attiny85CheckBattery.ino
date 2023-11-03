@@ -5,6 +5,8 @@
 */
   
 #include <SoftwareSerial.h>
+#include <time.h>
+
 double measure = 0.00;
 unsigned long idMessageCounter;
 
@@ -19,10 +21,14 @@ void setup() {
 		measure = measure + ((4.3 / 1024) * analogRead(A2));
 	}
 	measure = measure / 500;
+
 	idMessageCounter = millis() / 10UL;
 }
 
 void loop() {
+	//used to simulate differents attiny85 idMessageCouters. 
+	//idMessageCounter++;
+
 	softwareSerial.print(measure);
 	softwareSerial.print(idMessageCounter);
 	softwareSerial.print('*');

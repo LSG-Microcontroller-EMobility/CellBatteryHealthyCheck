@@ -45,7 +45,7 @@ bool _is_card_writing_disable = false;
 
 uint8_t numeroDisallineamenti = 0;
 
-char _idMessage[1] = {};
+char _idMessage[1] = {'x'};
 
 float batteryMaxLevel = 0.00f;
 
@@ -179,8 +179,6 @@ void loop()
 		max_attempts++;
 	}
 
-
-
 	if (!is_number(response))
 	{
 		playMessageOnDPlayer(3);
@@ -190,8 +188,19 @@ void loop()
 		_demultiplexerPosition = 0;
 		return;
 	}
-
-	_idMessage[0] = response[4];
+	if (_idMessage[0] != 'x')
+	{
+		if (_idMessage[0] != response[4]){
+			playMessageOnDPlayer(7);
+			Serial.println(F("idMessage problems"));
+			_demultiplexerPosition = 0;
+			_idMessage[0] = 'x';
+			return;
+		}
+	}
+	else {
+		_idMessage[0] = response[4];
+	}
 
 	char csvTextLayOut[21] = {};
 
@@ -224,20 +233,23 @@ void loop()
 
 #ifdef _DEBUG
 		printStoredBatteryValuesArray();
-#endif // _DEBUG
-
+#endif 
 		checkActivities();
+
 		_demultiplexerPosition = 0;
+
+		_idMessage[0] = 'x';
+
 		for (uint8_t i = 0; i < 6; i++) {
 			storedBatteryValues[i] = 0.00;
 		}
+
 		resetAttiny85();
 	}
 	else
 	{
 		_demultiplexerPosition++;
 	}
-
 	/* 	if (responseString != "")
 		{
 			// Serial.println(F("-----------------START------------------------"));

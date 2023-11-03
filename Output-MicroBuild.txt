@@ -1,6 +1,0 @@
-﻿Compiling 'ATMega328ReceiveAndWriteSDData' for 'ATmega328P (Arduino Nano)'
-Program size: 24,526 bytes (used 80% of a 30,720 byte maximum) (3.27 secs)
-Minimum Memory Usage: 1270 bytes (62% of a 2048 byte maximum)
- 
-Uploading 'ATMega328ReceiveAndWriteSDData' to 'ATmega328P (Arduino Nano)' using 'COM12'
-	The upload process has finished.

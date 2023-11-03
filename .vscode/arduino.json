@@ -1,5 +1,5 @@
 {
-    "board": "attiny:avr:ATtinyX5",
+    "board": "arduino:avr:nano",
     "port": "/dev/ttyS0",
-    "configuration": "cpu=attiny85,clock=internal8"
+    "configuration": "cpu=atmega328"
 }

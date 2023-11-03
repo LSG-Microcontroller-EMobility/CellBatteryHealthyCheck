@@ -26,7 +26,7 @@ const uint8_t _pin_reset_attiny85 = 9;
 
 uint8_t _pin_buzzer = 8;
 
-//-----------------------    ATTENZIONE PIN ASSEGNATI !!!!!!!   -------------------------------
+//-----------------------    ATTENZIONE PIN ASSEGNATI a scheda SD file excel !!!!!!!   -------------------------------
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
 const char* idBattery[numberOfBattery] = { "B0", "B1", "B2", "B3", "B4", "B5" }; //, "B1", "B2" };
@@ -161,19 +161,25 @@ void loop()
 
 	getDataFromSerialBuffer(&response[0]);
 
-	if (!is_number(response))
-	{
-		for (uint8_t i = 0; i < 2; i++)
-		{
-			getDataFromSerialBuffer(&response[0]);
-		}
-	}
 
 #ifdef _DEBUG
 	Serial.print(F("#"));
 	Serial.print(response);
 	Serial.println(F("#"));
 #endif
+
+	uint8_t max_attempts = 0;
+
+	while ((!is_number(response) || response[0] == '.') && max_attempts < 5)
+	{
+		getDataFromSerialBuffer(&response[0]);	//delay(500);
+#ifdef _DEBUG
+		Serial.println(F("num.wrong"));
+#endif
+		max_attempts++;
+	}
+
+
 
 	if (!is_number(response))
 	{

@@ -53,5 +53,8 @@
     <Media Include="mp3\0020_problemaInTraccia.mp3">
       <Filter>audio</Filter>
     </Media>
+    <Media Include="mp3\0070_idMessageWrong.mp3">
+      <Filter>audio</Filter>
+    </Media>
   </ItemGroup>
 </Project>

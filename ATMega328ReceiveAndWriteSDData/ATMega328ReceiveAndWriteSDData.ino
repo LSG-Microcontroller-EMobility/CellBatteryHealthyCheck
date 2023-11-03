@@ -9,6 +9,19 @@
 #include <string.h>
 #include <DFRobotDFPlayerMini.h>
 
+#define AUDIO_DISLIVELLO_BATTERIE 1
+
+#define AUDIO_TRACCIA_ERRATA ((int)2)
+
+#define AUDIO_NUMERO_ERRATO ((int)3)
+
+#define AUDIO_PROBLEMA_SCHEDA_MEMORIA ((int)4)
+
+#define AUDIO_DATI_SUFFICIENTI ((int)5)
+
+#define AUDIO_SISTEMA_INIZIALIZZATO ((int)6)
+
+#define AUDIO_ID_MESSAGE_WRONG ((int)7)
 
 const uint8_t numberOfBattery = 6;
 
@@ -45,7 +58,7 @@ bool _is_card_writing_disable = false;
 
 uint8_t numeroDisallineamenti = 0;
 
-char _idMessage[1] = {'x'};
+char _idMessage[1] = { 'x' };
 
 float batteryMaxLevel = 0.00f;
 
@@ -85,11 +98,9 @@ void setup()
 
 	initFileCard();
 
-
-
 	//Serial.println(F("restart"));
 
-	playMessageOnDPlayer(6);
+	playMessageOnDPlayer(AUDIO_SISTEMA_INIZIALIZZATO);
 
 
 }
@@ -102,7 +113,6 @@ void initFileCard()
 
 	if (SD.begin())
 	{
-
 		//Serial.println(F("card ready"));
 
 		for (uint8_t i = 0; i < 1; i++)
@@ -134,7 +144,7 @@ void initFileCard()
 #ifdef _DEBUG
 		Serial.println(F("SD failed"));
 #endif // _DEBUG
-		/*	playMessageOnDPlayer(4);*/
+			playMessageOnDPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		return;
 	}
 }
@@ -143,24 +153,12 @@ void loop()
 {
 	setMultiplexer(_demultiplexerPosition);
 
+	//if there is an attiny85 reset delay put here same delay (maybe not important) 
 	//delay(800);
-
-	//Serial.println(F("giro"));
-	//for (int i = 0; i < 16; i++)
-	//{
-	//	Serial.println(i);
-	//	setMultiplexer(i);
-	//	delay(500);
-	//}
-	//return;
-
-	//if there is an attiny85 reset delay put here same delay 
-	//delay(1000);
 
 	char response[6] = {};
 
 	getDataFromSerialBuffer(&response[0]);
-
 
 #ifdef _DEBUG
 	Serial.print(F("#"));
@@ -170,20 +168,21 @@ void loop()
 
 	uint8_t max_attempts = 0;
 
+	//Attempts if number transformation fails.
 	while ((!is_number(response) || response[0] == '.') && max_attempts < 5)
 	{
 		getDataFromSerialBuffer(&response[0]);	//delay(500);
+
 #ifdef _DEBUG
 		Serial.println(F("num.wrong"));
 #endif
 		max_attempts++;
 	}
-
-
-
+	//if number transformation was failed
 	if (!is_number(response))
 	{
-		playMessageOnDPlayer(3);
+		playMessageOnDPlayer(AUDIO_NUMERO_ERRATO);
+
 #ifdef _DEBUG
 		Serial.println(F("resp.not.num"));
 #endif
@@ -192,9 +191,13 @@ void loop()
 	}
 	if (_idMessage[0] != 'x')
 	{
-		if (_idMessage[0] != response[4]){
-			playMessageOnDPlayer(7);
+		if (_idMessage[0] != response[4]) {
+			playMessageOnDPlayer(AUDIO_ID_MESSAGE_WRONG);
+
+#ifdef _DEBUG
 			Serial.println(F("idMessage problems"));
+#endif // _DEBUG
+
 			_demultiplexerPosition = 0;
 			_idMessage[0] = 'x';
 			return;
@@ -213,9 +216,11 @@ void loop()
 		//Serial.println((char)csvTextLayOut[i]);
 		if (((char)csvTextLayOut[i] < 46 || (char)csvTextLayOut[i] > 59) && (char)csvTextLayOut[2] != 'B')
 		{
+#ifdef _DEBUG
 			Serial.println(F("text.problem"));
+#endif // _DEBUG
 			_demultiplexerPosition = 0;
-			playMessageOnDPlayer(2);
+			playMessageOnDPlayer(AUDIO_TRACCIA_ERRATA);
 			return;
 		}
 	}
@@ -367,7 +372,7 @@ void checkActivities()
 #ifdef _DEBUG
 		Serial.println(F("Unbalanced batteries"));
 #endif // _DEBUG
-		playMessageOnDPlayer(1);
+		playMessageOnDPlayer(AUDIO_DISLIVELLO_BATTERIE);
 		//buzzerSensorActivity(5, 2500, 80, 200);
 	}
 }
@@ -518,7 +523,7 @@ void writeOnSDCard(char* message)
 	{
 		myFile.println(message);
 #ifdef _DEBUG
-		Serial.println(F("Scrivo"));
+		Serial.println(F("write"));
 #endif // _DEBUG
 		myFile.close();
 	}
@@ -526,12 +531,11 @@ void writeOnSDCard(char* message)
 	{
 		//buzzerSensorActivity(5, 400, 1000, 500);
 #ifdef _DEBUG
-		Serial.println(F("error opening battery.cvs"));
+		Serial.println(F("err.open.file"));
 #endif // _DEBUG
-		/*playMessageOnDPlayer(4);*/
+		playMessageOnDPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		myFile.close();
 	}
-
 	//// Reading the file
 	// myFile = SD.open("batteryValues.csv");
 	// if (myFile) {

@@ -9,15 +9,16 @@
 #include <string.h>
 #include <DFRobotDFPlayerMini.h>
 
-const uint8_t selectorMultiPlex0 = 4;
-
-const uint8_t selectorMultiPlex1 = 5;
-
-const uint8_t selectorMultiPlex2 = 6;
-
-const uint8_t selectorMultiPlex3 = 7;
 
 const uint8_t numberOfBattery = 6;
+
+const uint8_t _pin_selectorMultiPlex0 = 4;
+
+const uint8_t _pin_selectorMultiPlex1 = 5;
+
+const uint8_t _pin_selectorMultiPlex2 = 6;
+
+const uint8_t _pin_selectorMultiPlex3 = 7;
 
 const uint8_t _pin_rx = 3;
 
@@ -54,25 +55,27 @@ uint8_t ii = 0;
 
 void setup()
 {
+	resetAttiny85();
+
 	delay(2000);
 
 	pinMode(_pin_reset_attiny85, OUTPUT);
 
-	pinMode(selectorMultiPlex0, OUTPUT);
+	pinMode(_pin_selectorMultiPlex0, OUTPUT);
 
-	pinMode(selectorMultiPlex1, OUTPUT);
+	pinMode(_pin_selectorMultiPlex1, OUTPUT);
 
-	pinMode(selectorMultiPlex2, OUTPUT);
+	pinMode(_pin_selectorMultiPlex2, OUTPUT);
 
-	pinMode(selectorMultiPlex3, OUTPUT);
+	pinMode(_pin_selectorMultiPlex3, OUTPUT);
 
-	digitalWrite(selectorMultiPlex0, LOW);
+	digitalWrite(_pin_selectorMultiPlex0, LOW);
 
-	digitalWrite(selectorMultiPlex1, LOW);
+	digitalWrite(_pin_selectorMultiPlex1, LOW);
 
-	digitalWrite(selectorMultiPlex2, LOW);
+	digitalWrite(_pin_selectorMultiPlex2, LOW);
 
-	digitalWrite(selectorMultiPlex3, LOW);
+	digitalWrite(_pin_selectorMultiPlex3, LOW);
 
 	digitalWrite(_pin_reset_attiny85, LOW);
 
@@ -83,9 +86,12 @@ void setup()
 	initFileCard();
 
 
-	Serial.println(F("restart"));
+
+	//Serial.println(F("restart"));
 
 	playMessageOnDPlayer(6);
+
+
 }
 
 char fileName[15] = {};
@@ -128,25 +134,40 @@ void initFileCard()
 #ifdef _DEBUG
 		Serial.println(F("SD failed"));
 #endif // _DEBUG
-		playMessageOnDPlayer(4);
+		/*	playMessageOnDPlayer(4);*/
 		return;
 	}
 }
 
 void loop()
 {
-	//Serial.println(F("giro"));
-
-	resetAttiny85();
-
 	setMultiplexer(_demultiplexerPosition);
+
+	//delay(800);
+
+	//Serial.println(F("giro"));
+	//for (int i = 0; i < 16; i++)
+	//{
+	//	Serial.println(i);
+	//	setMultiplexer(i);
+	//	delay(500);
+	//}
+	//return;
 
 	//if there is an attiny85 reset delay put here same delay 
 	//delay(1000);
 
 	char response[6] = {};
 
-	getDataFromSerialBuffer(response);
+	getDataFromSerialBuffer(&response[0]);
+
+	if (!is_number(response))
+	{
+		for (uint8_t i = 0; i < 2; i++)
+		{
+			getDataFromSerialBuffer(&response[0]);
+		}
+	}
 
 #ifdef _DEBUG
 	Serial.print(F("#"));
@@ -170,13 +191,25 @@ void loop()
 
 	prepareStringForSDCard(csvTextLayOut, response);
 
-	if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
+	for (uint8_t i = 0; i < 20; i++)
 	{
-		Serial.println(F("text.problem"));
-		_demultiplexerPosition = 0;
-		playMessageOnDPlayer(2);
-		return;
+		//Serial.println((char)csvTextLayOut[i]);
+		if (((char)csvTextLayOut[i] < 46 || (char)csvTextLayOut[i] > 59) && (char)csvTextLayOut[2] != 'B')
+		{
+			Serial.println(F("text.problem"));
+			_demultiplexerPosition = 0;
+			playMessageOnDPlayer(2);
+			return;
+		}
 	}
+
+	//if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
+	//{
+	//	Serial.println(F("text.problem"));
+	//	_demultiplexerPosition = 0;
+	//	playMessageOnDPlayer(2);
+	//	return;
+	//}
 
 	writeOnSDCard(csvTextLayOut);
 
@@ -192,6 +225,7 @@ void loop()
 		for (uint8_t i = 0; i < 6; i++) {
 			storedBatteryValues[i] = 0.00;
 		}
+		resetAttiny85();
 	}
 	else
 	{
@@ -322,7 +356,7 @@ bool is_number(const String& s)
 {
 	char* end = nullptr;
 	float val = strtod(s.c_str(), &end);
-	return end != s.c_str() && *end == '\0' /* && val != 0.00 */;
+	return end != s.c_str() && *end == '\0' && val < 4.5 && val > 0.00;
 }
 
 bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
@@ -353,50 +387,50 @@ void getDataFromSerialBuffer(char* response)
 
 	softwareSerial.begin(600);
 
-	//response[0] = {};
+	delay(500);
+
+	if (softwareSerial.available() > 0)
+	{
+		for (int i = 0; i < 19; i++)
+		{
+			softwareSerial.read();
+		}
+	}
 
 	delay(500);
 
 	if (softwareSerial.available() > 0)
 	{
-		softwareSerial.readStringUntil('*');
-	}
-	if (softwareSerial.available() > 0)
-	{
 		softwareSerial.readBytesUntil('*', response, 6);
-
-#ifdef _DEBUG
-		response[6] = '\0';
-		Serial.print(F("data from attiny85 : "));
-		Serial.println(response);
-#endif // _DEBUG
-
 	}
+	response[5] = '\0';
+
 }
+
+//Serial.print("setMultiplexer channel : "); Serial.println(channel);
+int controlPin[4] = { _pin_selectorMultiPlex0, _pin_selectorMultiPlex1, _pin_selectorMultiPlex2, _pin_selectorMultiPlex3 };
+
+int muxChannel[6][4] = {
+	{0, 0, 0, 0}, // channel 0
+	{1, 0, 0, 0}, // channel 1
+	{0, 1, 0, 0}, // channel 2
+	{1, 1, 0, 0}, // channel 3
+	{0, 0, 1, 0}, // channel 4
+	{1, 0, 1, 0}, // channel 5
+	//{0, 1, 1, 0}, // channel 6
+	//{1, 1, 1, 0}, // channel 7
+	//{0, 0, 0, 1}, // channel 8
+	//{1, 0, 0, 1}, // channel 9
+	//{0, 1, 0, 1}, // channel 10
+	//{1, 1, 0, 1}, // channel 11
+	//{0, 0, 1, 1}, // channel 12
+	//{1, 0, 1, 1}, // channel 13
+	//{0, 1, 1, 1}, // channel 14
+	//{1, 1, 1, 1}  // channel 15
+};
 
 void setMultiplexer(int channel)
 {
-	// Serial.print("setMultiplexer channel : "); Serial.println(channel);
-	int controlPin[] = { selectorMultiPlex0, selectorMultiPlex1, selectorMultiPlex2, selectorMultiPlex3 };
-
-	int muxChannel[6][4] = {
-		{0, 0, 0, 0}, // channel 0
-		{1, 0, 0, 0}, // channel 1
-		{0, 1, 0, 0}, // channel 2
-		{1, 1, 0, 0}, // channel 3
-		{0, 0, 1, 0}, // channel 4
-		{1, 0, 1, 0}, // channel 5
-		//{0, 1, 1, 0}, // channel 6
-		//{1, 1, 1, 0}, // channel 7
-		//{0, 0, 0, 1}, // channel 8
-		//{1, 0, 0, 1}, // channel 9
-		//{0, 1, 0, 1}, // channel 10
-		//{1, 1, 0, 1}, // channel 11
-		//{0, 0, 1, 1}, // channel 12
-		//{1, 0, 1, 1}, // channel 13
-		//{0, 1, 1, 1}, // channel 14
-		//{1, 1, 1, 1}  // channel 15
-	};
 
 	// loop through the 4 sig
 	for (int i = 0; i < 4; i++)
@@ -405,10 +439,8 @@ void setMultiplexer(int channel)
 	}
 }
 
-void prepareStringForSDCard(char* csvTextLayOut, char* response)
+void prepareStringForSDCard(char* csvTextLayOut, char response[6])
 {
-	char num_to_string[4] = {};
-
 	char deltaVoltage_to_string[4] = {};
 
 	response[4] = '\0';
@@ -419,15 +451,13 @@ void prepareStringForSDCard(char* csvTextLayOut, char* response)
 
 	number = number + deltaVoltage[_demultiplexerPosition];
 
-	dtostrf(number, 4, 2, num_to_string);
-
 	dtostrf(deltaVoltage[_demultiplexerPosition], 4, 2, deltaVoltage_to_string);
 
 	csvTextLayOut[0] = _idMessage[0];
 	strcat(csvTextLayOut, ";");
 	strcat(csvTextLayOut, idBattery[_demultiplexerPosition]);
 	strcat(csvTextLayOut, ";");
-	strcat(csvTextLayOut, num_to_string);
+	strcat(csvTextLayOut, response);
 	strcat(csvTextLayOut, ";");
 	strcat(csvTextLayOut, deltaVoltage_to_string);
 	strcat(csvTextLayOut, ";");
@@ -439,6 +469,7 @@ void prepareStringForSDCard(char* csvTextLayOut, char* response)
 #endif // _DEBUG
 	storedBatteryValues[_demultiplexerPosition] = number;
 }
+
 /*
 String prepareStringForSDCardOld(String message, uint8_t demultiplexerPosition)
 {
@@ -477,7 +508,7 @@ void writeOnSDCard(char* message)
 #ifdef _DEBUG
 		Serial.println(F("error opening battery.cvs"));
 #endif // _DEBUG
-		playMessageOnDPlayer(4);
+		/*playMessageOnDPlayer(4);*/
 		myFile.close();
 	}
 
@@ -597,10 +628,12 @@ void playMessageOnDPlayer(uint8_t messageCode)
 #endif // _DEBUG
 
 	uint16_t volume = (30.00 / 1024.00) * analogRead(A3);
-	
+
 	//Serial.println(volume);
 
 	myDFPlayer.volume(volume);  //Set volume value. From 0 to 30
 
 	myDFPlayer.play(messageCode);  //Play next mp3 every 3 second.
+
+	delay(5000);
 }

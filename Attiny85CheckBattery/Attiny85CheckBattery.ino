@@ -19,11 +19,12 @@ void setup() {
 		measure = measure + ((4.3 / 1024) * analogRead(A2));
 	}
 	measure = measure / 500;
-	idMessageCounter = millis() / 100UL;
+	idMessageCounter = millis() / 10UL;
 }
 
 void loop() {
 	softwareSerial.print(measure);
 	softwareSerial.print(idMessageCounter);
 	softwareSerial.print('*');
+	delay(100);
 }

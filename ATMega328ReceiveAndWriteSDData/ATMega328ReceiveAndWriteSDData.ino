@@ -170,13 +170,14 @@ void initFileCard()
 			{
 #ifdef _DEBUG
 				Serial.println(F("File esiste"));
+#endif // _DEBUG
 				cicle++;
 				if (cicle == 10)
 				{
 					playMessageOnDPlayer(AUDIO_SCHEDA_MEM_PIENA);
 					while (true) {};
 				}
-#endif // _DEBUG
+
 				//SD.remove(fileName);
 			}
 			else {

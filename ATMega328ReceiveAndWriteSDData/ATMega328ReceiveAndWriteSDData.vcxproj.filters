@@ -56,5 +56,8 @@
     <Media Include="mp3\0070_idMessageWrong.mp3">
       <Filter>audio</Filter>
     </Media>
+    <Media Include="mp3\0080_sistema_instabile.mp3">
+      <Filter>audio</Filter>
+    </Media>
   </ItemGroup>
 </Project>

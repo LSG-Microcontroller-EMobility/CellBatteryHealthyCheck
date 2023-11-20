@@ -3,7 +3,7 @@
  Created:	3/8/2020 1:53:08 AM
  Author:	luigi.santagada
 */
-#include "localLibraries/SoftwareSerial.h"
+#include "SoftwareSerial.h"
 #include <SD.h>
 #include <SPI.h>
 #include <string.h>

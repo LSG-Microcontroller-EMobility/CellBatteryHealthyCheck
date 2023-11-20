@@ -24,13 +24,13 @@
     <ClInclude Include="__vm\.ATMega328ReceiveAndWriteSDData.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="localLibraries\SoftwareSerial.h">
+    <ClInclude Include="SoftwareSerial.h">
       <Filter>localLibraries</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ATMega328ReceiveAndWriteSDData.ino" />
-    <ClCompile Include="localLibraries\SoftwareSerial.cpp">
+    <ClCompile Include="SoftwareSerial.cpp">
       <Filter>localLibraries</Filter>
     </ClCompile>
   </ItemGroup>

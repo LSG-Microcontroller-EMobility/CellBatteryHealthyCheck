@@ -35,28 +35,34 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Media Include="mp3\0060_sistemaInizializzato.mp3">
+    <Media Include="mp3\0010_scheda_mem_piena.mp3">
       <Filter>audio</Filter>
     </Media>
-    <Media Include="mp3\0050_datiSufficienti.mp3">
+    <Media Include="mp3\0009_aquisizioneDati.mp3">
       <Filter>audio</Filter>
     </Media>
-    <Media Include="mp3\0040_schedaMemoria.mp3">
+    <Media Include="mp3\0008_sistema_instabile.mp3">
       <Filter>audio</Filter>
     </Media>
-    <Media Include="mp3\0030_problemaNumero.mp3">
+    <Media Include="mp3\0001_dislivello.mp3">
       <Filter>audio</Filter>
     </Media>
-    <Media Include="mp3\0010_dislivello.mp3">
+    <Media Include="mp3\0002_problemaInTraccia.mp3">
       <Filter>audio</Filter>
     </Media>
-    <Media Include="mp3\0020_problemaInTraccia.mp3">
+    <Media Include="mp3\0003_problemaNumero.mp3">
       <Filter>audio</Filter>
     </Media>
-    <Media Include="mp3\0070_idMessageWrong.mp3">
+    <Media Include="mp3\0004_schedaMemoria.mp3">
       <Filter>audio</Filter>
     </Media>
-    <Media Include="mp3\0080_sistema_instabile.mp3">
+    <Media Include="mp3\0005_datiSufficienti.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0006_sistemaInizializzato.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0007_idMessageWrong.mp3">
       <Filter>audio</Filter>
     </Media>
   </ItemGroup>

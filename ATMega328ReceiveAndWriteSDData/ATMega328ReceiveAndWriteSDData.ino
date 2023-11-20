@@ -23,6 +23,10 @@
 
 #define AUDIO_ID_MESSAGE_WRONG 7
 
+#define AUDIO_AQUISIZIONE_DATI 9
+
+#define AUDIO_SCHEDA_MEM_PIENA 10
+
 const uint8_t numberOfBattery = 6;
 
 const uint8_t _pin_selectorMultiPlex0 = 4;
@@ -37,7 +41,41 @@ const uint8_t _pin_rx = 3;
 
 const uint8_t _pin_reset_attiny85 = 9;
 
-uint8_t _pin_buzzer = 8;
+const uint8_t _pin_buzzer = 8;
+
+const uint8_t _pin_dfMiniPlayer_rx = A1;
+
+const uint8_t _pin_dfMiniPlayer_tx = A2;
+
+const uint8_t _pin_dfMiniPlayer_volume = A3;
+
+const uint8_t _pin_maxBatteryVoltageDifference = A4;
+
+uint8_t controlPin[4] = { _pin_selectorMultiPlex0, _pin_selectorMultiPlex1, _pin_selectorMultiPlex2, _pin_selectorMultiPlex3 };
+
+const uint8_t muxChannel[6][4] = {
+	{0, 0, 0, 0}, // channel 0
+	{1, 0, 0, 0}, // channel 1
+	{0, 1, 0, 0}, // channel 2
+	{1, 1, 0, 0}, // channel 3
+	{0, 0, 1, 0}, // channel 4
+	{1, 0, 1, 0}, // channel 5
+	//{0, 1, 1, 0}, // channel 6
+	//{1, 1, 1, 0}, // channel 7
+	//{0, 0, 0, 1}, // channel 8
+	//{1, 0, 0, 1}, // channel 9
+	//{0, 1, 0, 1}, // channel 10
+	//{1, 1, 0, 1}, // channel 11
+	//{0, 0, 1, 1}, // channel 12
+	//{1, 0, 1, 1}, // channel 13
+	//{0, 1, 1, 1}, // channel 14
+	//{1, 1, 1, 1}  // channel 15
+};
+
+uint8_t total_takeovers = 0;
+
+const uint8_t max_total_takeovers = 30;
+
 
 //-----------------------    ATTENZIONE PIN ASSEGNATI a scheda SD file excel !!!!!!!   -------------------------------
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
@@ -63,6 +101,8 @@ char _idMessage[1] = { 'x' };
 float batteryMaxLevel = 0.00f;
 
 float batteryMinLevel = 0.00f;
+
+const uint8_t max_files_numbers = 10;
 
 uint8_t ii = 0;
 
@@ -113,14 +153,16 @@ void initFileCard()
 
 	if (SD.begin())
 	{
+		bool exit = false;
+		uint8_t cicle = 0;
 		//Serial.println(F("card ready"));
-
-		for (uint8_t i = 0; i < 1; i++)
+		while (cicle < max_files_numbers && !exit)
 		{
 			strcpy(fileName, "batt");
-			fileName[4] = (char)(i + 48);
+			fileName[4] = (char)(cicle + 48);
 			strcat(fileName, ".csv");
-			strcat(fileName, "\0");
+			fileName[9] = '\0';
+			
 #ifdef _DEBUG
 			Serial.println(fileName);
 #endif // _DEBUG
@@ -128,9 +170,17 @@ void initFileCard()
 			{
 #ifdef _DEBUG
 				Serial.println(F("File esiste"));
+				cicle++;
+				if (cicle == 10)
+				{
+					playMessageOnDPlayer(AUDIO_SCHEDA_MEM_PIENA);
+					while (true) {};
+				}
 #endif // _DEBUG
-
-				SD.remove(fileName);
+				//SD.remove(fileName);
+			}
+			else {
+				exit = true;
 			}
 		}
 		char headersText[37] = "IDMessage;Battery;Value;Delta;Origin";
@@ -145,7 +195,7 @@ void initFileCard()
 		Serial.println(F("SD failed"));
 #endif // _DEBUG
 			playMessageOnDPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
-		return;
+			while (true) {};
 	}
 }
 
@@ -249,6 +299,14 @@ void loop()
 
 		for (uint8_t i = 0; i < 6; i++) {
 			storedBatteryValues[i] = 0.00;
+		}
+
+		total_takeovers++;
+
+		if (total_takeovers == max_total_takeovers)
+		{
+			total_takeovers = 0;
+			playMessageOnDPlayer(AUDIO_AQUISIZIONE_DATI);
 		}
 
 		resetAttiny85();
@@ -367,7 +425,7 @@ void checkActivities()
 	Serial.println(batteryMinLevel);
 #endif // _DEBUG
 
-	if (thereAreUnbalancedBatteries(5))
+	if (thereAreUnbalancedBatteries())
 	{
 #ifdef _DEBUG
 		Serial.println(F("Unbalanced batteries"));
@@ -384,8 +442,11 @@ bool is_number(const String& s)
 	return end != s.c_str() && *end == '\0' && val < 4.5 && val > 0.00;
 }
 
-bool thereAreUnbalancedBatteries(uint8_t maxPercentageForAlarm)
+bool thereAreUnbalancedBatteries()
 {
+	
+	float maxPercentageForAlarm = analogRead(_pin_maxBatteryVoltageDifference) / (1024.00 / 10.00);
+    
 	float percentageValue = 100 - ((batteryMinLevel / batteryMaxLevel) * 100);
 
 #ifdef _DEBUG
@@ -433,26 +494,7 @@ void getDataFromSerialBuffer(char* response)
 }
 
 //Serial.print("setMultiplexer channel : "); Serial.println(channel);
-int controlPin[4] = { _pin_selectorMultiPlex0, _pin_selectorMultiPlex1, _pin_selectorMultiPlex2, _pin_selectorMultiPlex3 };
 
-int muxChannel[6][4] = {
-	{0, 0, 0, 0}, // channel 0
-	{1, 0, 0, 0}, // channel 1
-	{0, 1, 0, 0}, // channel 2
-	{1, 1, 0, 0}, // channel 3
-	{0, 0, 1, 0}, // channel 4
-	{1, 0, 1, 0}, // channel 5
-	//{0, 1, 1, 0}, // channel 6
-	//{1, 1, 1, 0}, // channel 7
-	//{0, 0, 0, 1}, // channel 8
-	//{1, 0, 0, 1}, // channel 9
-	//{0, 1, 0, 1}, // channel 10
-	//{1, 1, 0, 1}, // channel 11
-	//{0, 0, 1, 1}, // channel 12
-	//{1, 0, 1, 1}, // channel 13
-	//{0, 1, 1, 1}, // channel 14
-	//{1, 1, 1, 1}  // channel 15
-};
 
 void setMultiplexer(int channel)
 {
@@ -631,7 +673,7 @@ void checkBatteriesMinLevel(float value)
 void playMessageOnDPlayer(uint8_t messageCode)
 {
 	DFRobotDFPlayerMini myDFPlayer;
-	SoftwareSerial mySoftwareSerial(A1, A2); // rx, tx
+	SoftwareSerial mySoftwareSerial(_pin_dfMiniPlayer_rx, _pin_dfMiniPlayer_tx); // rx, tx
 	delay(500);
 	mySoftwareSerial.begin(9600);
 	delay(500);

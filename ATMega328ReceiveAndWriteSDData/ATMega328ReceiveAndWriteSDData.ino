@@ -27,6 +27,12 @@
 
 #define AUDIO_SCHEDA_MEM_PIENA 10
 
+#define AUDIO_DELETE_FILES_30_SEC 11
+
+#define AUDIO_DELETE_FILES_10_SEC 12
+
+#define AUDIO_ALL_FILES_DELETED 13	
+
 const uint8_t numberOfBattery = 6;
 
 const uint8_t _pin_selectorMultiPlex0 = 4;
@@ -41,7 +47,7 @@ const uint8_t _pin_rx = 3;
 
 const uint8_t _pin_reset_attiny85 = 9;
 
-const uint8_t _pin_buzzer = 8;
+//const uint8_t _pin_buzzer = 8;
 
 const uint8_t _pin_dfMiniPlayer_rx = A1;
 
@@ -102,7 +108,7 @@ float batteryMaxLevel = 0.00f;
 
 float batteryMinLevel = 0.00f;
 
-const uint8_t max_files_numbers = 10;
+const uint8_t max_files_numbers = 9;  //MAX 9
 
 uint8_t ii = 0;
 
@@ -134,7 +140,7 @@ void setup()
 
 	Serial.begin(9600);
 
-	pinMode(_pin_buzzer, OUTPUT);
+	/*pinMode(_pin_buzzer, OUTPUT);*/
 
 	initFileCard();
 
@@ -172,13 +178,24 @@ void initFileCard()
 				Serial.println(F("File esiste"));
 #endif // _DEBUG
 				cicle++;
-				if (cicle == 10)
+				if (cicle == max_files_numbers)
 				{
 					playMessageOnDPlayer(AUDIO_SCHEDA_MEM_PIENA);
-					while (true) {};
+					playMessageOnDPlayer(AUDIO_DELETE_FILES_30_SEC);
+					delay(20);
+					playMessageOnDPlayer(AUDIO_DELETE_FILES_10_SEC);
+					delay(10);
+					for (uint8_t i = 0; i < max_files_numbers; i++)
+					{
+						strcpy(fileName, "batt");
+						fileName[4] = (char)(i + 48);
+						strcat(fileName, ".csv");
+						fileName[9] = '\0';
+						SD.remove(fileName);
+					}
+					playMessageOnDPlayer(AUDIO_ALL_FILES_DELETED);
+					cicle = 0;
 				}
-
-				//SD.remove(fileName);
 			}
 			else {
 				exit = true;
@@ -603,7 +620,7 @@ void resetAttiny85()
 
 void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)
 {
-	if (_is_buzzer_disabled)return;
+	/*if (_is_buzzer_disabled)return;
 
 	for (uint8_t i = 0; i < numberOfCicle; i++)
 	{
@@ -612,7 +629,7 @@ void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigne
 		delay(pause);
 		noTone(_pin_buzzer);
 	}
-	delay(pause);
+	delay(pause);*/
 }
 
 void checkBatteriesMaxLevel(float value)
@@ -686,7 +703,7 @@ void playMessageOnDPlayer(uint8_t messageCode)
 		Serial.println(F("1.Please recheck the connection!"));
 		Serial.println(F("2.Please insert the SD card!"));
 #endif // _DEBUG
-		buzzerSensorActivity(5, 2500, 80, 200);
+		//buzzerSensorActivity(5, 2500, 80, 200);
 		while (true);
 	}
 

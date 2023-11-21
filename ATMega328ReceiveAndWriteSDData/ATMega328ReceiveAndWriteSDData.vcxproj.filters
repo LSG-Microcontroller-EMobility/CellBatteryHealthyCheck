@@ -65,5 +65,14 @@
     <Media Include="mp3\0007_idMessageWrong.mp3">
       <Filter>audio</Filter>
     </Media>
+    <Media Include="mp3\0013_files_eliminati.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0012_eliminazione_dsati_10_sec.mp3">
+      <Filter>audio</Filter>
+    </Media>
+    <Media Include="mp3\0011_eliminazione_dati_30_sec.mp3">
+      <Filter>audio</Filter>
+    </Media>
   </ItemGroup>
 </Project>

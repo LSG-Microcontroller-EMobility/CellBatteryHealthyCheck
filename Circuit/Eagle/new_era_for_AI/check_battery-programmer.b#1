@@ -9,7 +9,7 @@
 </settings>
 <grid distance="0.003125" unitdist="mic" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.003125" altunitdist="mic" altunit="mm"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="no" active="yes"/>
+<layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
 <layer number="3" name="Route3" color="4" fill="3" visible="no" active="no"/>
 <layer number="4" name="Route4" color="1" fill="4" visible="no" active="no"/>
@@ -172,8 +172,8 @@
 <text x="5.5" y="35" size="0.6096" layer="21">external-ground</text>
 <text x="5.5" y="29" size="0.6096" layer="21">external-reset</text>
 <text x="10.065534375" y="20.234221875" size="0.6096" layer="21" rot="R180">external-5.1v</text>
-<text x="34.53648125" y="22.3026625" size="0.6096" layer="21">zener-10V</text>
-<text x="34.791634375" y="20.332284375" size="0.6096" layer="21">ground-battery</text>
+<text x="34.653590625" y="22.595753125" size="0.6096" layer="21">zener-10V</text>
+<text x="39.39625625" y="18.64911875" size="0.6096" layer="21" rot="R180">ground-battery</text>
 <text x="34.465171875" y="15.598434375" size="0.6096" layer="21">12V-battery</text>
 <wire x1="4.2" y1="40" x2="55.8" y2="40" width="0.508" layer="21"/>
 <wire x1="55.8" y1="40" x2="55.8" y2="12" width="0.508" layer="21"/>
@@ -183,12 +183,26 @@
 <hole x="6" y="7" drill="0.35"/>
 <hole x="70" y="7" drill="0.35"/>
 <hole x="70.5" y="40" drill="0.35"/>
-<text x="15.5" y="36" size="1.778" layer="21">cell-battery-programmer</text>
+<text x="15.78105625" y="34.52251875" size="1.778" layer="21">cell-battery-programmer</text>
 <circle x="6" y="40" radius="0.5" width="1.27" layer="16"/>
 <circle x="6" y="7" radius="0.5" width="1.27" layer="16"/>
 <circle x="70" y="7" radius="0.5" width="1.27" layer="16"/>
 <circle x="70.5" y="40" radius="0.5" width="1.27" layer="16"/>
 <text x="21.693" y="16.599246875" size="0.6096" layer="21" rot="R270">zener-3.9V</text>
+<rectangle x1="25.365571875" y1="27.790790625" x2="43.915465625" y2="34.263584375" layer="16"/>
+<rectangle x1="27.895103125" y1="33.9118" x2="43.915465625" y2="38.62568125" layer="16"/>
+<rectangle x1="22.836040625" y1="28.424" x2="27.19245625" y2="32.99716875" layer="16"/>
+<rectangle x1="5.48065" y1="35.74106875" x2="20.447040625" y2="38.34425625" layer="16"/>
+<rectangle x1="40.402228125" y1="21.599425" x2="44.47758125" y2="24.554396875" layer="16"/>
+<rectangle x1="42.580434375" y1="11.67916875" x2="44.547846875" y2="21.81049375" layer="16"/>
+<rectangle x1="35.2026375" y1="8.724196875" x2="39.488784375" y2="18.292671875" layer="16"/>
+<rectangle x1="5.26985625" y1="8.935265625" x2="11.17209375" y2="19.20730625" layer="16"/>
+<rectangle x1="5.9022375" y1="26.31330625" x2="16.23115625" y2="29.338634375" layer="16"/>
+<rectangle x1="35.41343125" y1="22.0215625" x2="40.6832875" y2="24.4840375" layer="16"/>
+<rectangle x1="26.700603125" y1="33.4896625" x2="28.316690625" y2="37.8517625" layer="16"/>
+<rectangle x1="35.48369375" y1="21.7401375" x2="40.613021875" y2="24.554396875" layer="16"/>
+<rectangle x1="8.78309375" y1="6.121009375" x2="11.52341875" y2="7.809565625" layer="16"/>
+<rectangle x1="33.3054875" y1="8.653840625" x2="36.0458125" y2="12.804871875" layer="16"/>
 </plain>
 <libraries>
 <library name="testpad" urn="urn:adsk.eagle:library:385">

@@ -45,7 +45,7 @@ const uint8_t _pin_selectorMultiPlex3 = 7;
 
 const uint8_t _pin_rx = 3;
 
-const uint8_t _pin_reset_attiny85 = 9;
+const uint8_t _pin_interrupt_to_attiny85 = 9;
 
 //const uint8_t _pin_buzzer = 8;
 
@@ -114,11 +114,11 @@ uint8_t ii = 0;
 
 void setup()
 {
-	resetAttiny85();
+	Send_Interrupt_To_All_Attiny85();
 
 	delay(2000);
 
-	pinMode(_pin_reset_attiny85, OUTPUT);
+	pinMode(_pin_interrupt_to_attiny85, OUTPUT);
 
 	pinMode(_pin_selectorMultiPlex0, OUTPUT);
 
@@ -136,7 +136,7 @@ void setup()
 
 	digitalWrite(_pin_selectorMultiPlex3, LOW);
 
-	digitalWrite(_pin_reset_attiny85, LOW);
+	digitalWrite(_pin_interrupt_to_attiny85, LOW);
 
 	Serial.begin(9600);
 
@@ -221,7 +221,7 @@ void loop()
 {
 	setMultiplexer(_demultiplexerPosition);
 
-	//if there is an attiny85 reset delay put here same delay (maybe not important) 
+	//if there is an attiny85 interrupt delay put here same delay (maybe not important) 
 	//delay(800);
 
 	char response[6] = {};
@@ -327,7 +327,7 @@ void loop()
 			playMessageOnDPlayer(AUDIO_AQUISIZIONE_DATI);
 		}
 
-		resetAttiny85();
+		Send_Interrupt_To_All_Attiny85();
 	}
 	else
 	{
@@ -411,7 +411,7 @@ void loop()
 				buzzerSensorActivity(5, 2500, 80, 200);
 			}
 
-			resetAttiny85();
+			Send_Interrupt_To_All_Attiny85();
 			clearSerialBuffer();
 			//idCurrentMessage = "";
 			// Serial.println(F("-----------------END------------------------"));
@@ -491,7 +491,9 @@ void getDataFromSerialBuffer(char* response)
 
 	softwareSerial.begin(600);
 
-	delay(500);
+	while (!softwareSerial);
+
+	//delay(500);
 
 	if (softwareSerial.available() > 0)
 	{
@@ -611,11 +613,11 @@ void writeOnSDCard(char* message)
 	// }
 }
 
-void resetAttiny85()
+void Send_Interrupt_To_All_Attiny85()
 {
-	digitalWrite(_pin_reset_attiny85, HIGH);
-	delay(500);
-	digitalWrite(_pin_reset_attiny85, LOW);
+	digitalWrite(_pin_interrupt_to_attiny85, HIGH);
+	//delay(500);
+	digitalWrite(_pin_interrupt_to_attiny85, LOW);
 }
 
 void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)

@@ -7,28 +7,54 @@
 #include <SoftwareSerial.h>
 
 double measure = 0.00;
+
 unsigned long idMessageCounter;
 
 SoftwareSerial softwareSerial(99, 3, true);
 
 void setup() {
-  //delay(900);  // attiny85 reset delay
+ 
   analogReference(EXTERNAL);
-  softwareSerial.begin(600);
-  for (int i = 0; i < 500; i++) {
-    measure = measure + ((3.9 / 1024) * analogRead(A2));
-  }
-  measure = measure / 500;
 
-  idMessageCounter = millis() / 10UL;
+  softwareSerial.begin(600);
+
+  cli();
+
+  PCMSK |= bit(PCINT2);  // want pin D3 / pin 2
+  GIFR |= bit(PCIF);    // clear any outstanding interrupts
+  GIMSK |= bit(PCIE);    // enable pin change interrupts
+
+  //printData("ID", false); printData(identifyNumber, true);
+
+  pinMode(2, INPUT_PULLUP);
+
+  attachInterrupt(0, activateSystemOnAlarmInterrupt, CHANGE);
+
+  sei();
+
+  
+
+  for (int i = 0; i < 1000; i++) {
+      measure = measure + ((3.9 / 1024) * analogRead(A2));
+  }
+  measure = measure / 1000;
+  idMessageCounter = 0;
 }
 
 void loop() {
-  //used to simulate differents attiny85 idMessageCouters.
-  //idMessageCounter++;
-
   softwareSerial.print(measure);
   softwareSerial.print(idMessageCounter);
   softwareSerial.print('*');
+  //importante perchè altrimenti non intercetta interrupt
   delay(100);
+}
+
+void activateSystemOnAlarmInterrupt()
+{
+    softwareSerial.println("interrupt");
+    for (int i = 0; i < 1000; i++) {
+        measure = measure + ((3.9 / 1024) * analogRead(A2));
+    }
+    measure = measure / 1000;
+    idMessageCounter = 0;
 }

@@ -487,7 +487,7 @@ float getNumber(char* response)
 
 void getDataFromSerialBuffer(char* response)
 {
-	SoftwareSerial softwareSerial(3, 99);
+	SoftwareSerial softwareSerial(_pin_rx, 99);
 
 	softwareSerial.begin(600);
 

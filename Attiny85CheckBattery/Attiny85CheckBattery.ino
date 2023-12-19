@@ -51,7 +51,11 @@ void loop() {
 
 void activateSystemOnAlarmInterrupt()
 {
+
+#ifdef _DEBUG
     softwareSerial.println("interrupt");
+#endif // _DEBUG
+
     for (int i = 0; i < 1000; i++) {
         measure = measure + ((3.9 / 1024) * analogRead(A2));
     }

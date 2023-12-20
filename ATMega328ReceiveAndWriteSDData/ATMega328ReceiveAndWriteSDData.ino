@@ -216,7 +216,7 @@ void loop()
 		_idMessage[0] = response[4];
 	}
 
-	
+	char csv_battery_text_layout[21] = {};
 
 	prepare_battery_sd_card_string(csv_battery_text_layout, response);
 

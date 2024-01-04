@@ -395,8 +395,12 @@ bool thereAreUnbalancedBatteries()
 	float percentageValue = 100 - ((batteryMinLevel / batteryMaxLevel) * 100);
 
 #ifdef _DEBUG
-	Serial.print(F("Percentage value : "));
+	Serial.print(F("% value : "));
 	Serial.print(percentageValue);
+	Serial.println(F("%"));
+
+	Serial.print(F("% max : "));
+	Serial.print(maxPercentageForAlarm);
 	Serial.println(F("%"));
 #endif // _DEBUG
 
@@ -543,6 +547,8 @@ void prepare_watts_sd_card_string(char* csv_text_layout)
 	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, watts);
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
 	csv_text_layout[20] = '\0';
 #ifdef _DEBUG
 	Serial.print("csv_watts_layout: "); Serial.println(csv_text_layout);
@@ -557,6 +563,8 @@ void prepare_ampere_sd_card_string(char* csv_text_layout)
 	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, amps);
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
 	csv_text_layout[20] = '\0';
 #ifdef _DEBUG
 	Serial.print("csv_amps_layout: "); Serial.println(csv_text_layout);

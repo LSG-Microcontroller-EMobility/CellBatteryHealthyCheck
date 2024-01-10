@@ -96,6 +96,8 @@ uint8_t ii = 0;
 
 void setup()
 {
+	analogReference(EXTERNAL);
+
 	Send_Interrupt_To_All_Attiny85();
 
 	delay(2000);
@@ -390,7 +392,10 @@ bool is_number(const String& s)
 bool thereAreUnbalancedBatteries()
 {
 
-	float maxPercentageForAlarm = analogRead(_pin_maxBatteryVoltageDifference) / (1024.00 / 10.00);
+    //https://www.desmos.com/calculator/wsfbcw9ffn
+	//See math site for percentage calculate.
+
+	float maxPercentageForAlarm = analogRead(_pin_maxBatteryVoltageDifference) / (1024.00 / 15.00 /*<--max percentage*/);
 
 	float percentageValue = 100 - ((batteryMinLevel / batteryMaxLevel) * 100);
 
@@ -570,7 +575,6 @@ void prepare_ampere_sd_card_string(char* csv_text_layout)
 	Serial.print("csv_amps_layout: "); Serial.println(csv_text_layout);
 #endif 
 }
-
 
 void writeOnSDCard(char* message)
 {

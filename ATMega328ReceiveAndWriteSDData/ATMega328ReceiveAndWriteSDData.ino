@@ -45,7 +45,7 @@ const uint8_t _pin_selectorMultiPlex3 = 7;
 
 const uint8_t _pin_rx = 3;
 
-const uint8_t _pin_reset_attiny85 = 9;
+const uint8_t _pin_interrupt_to_attiny85 = 9;
 
 //const uint8_t _pin_buzzer = 8;
 
@@ -57,27 +57,6 @@ const uint8_t _pin_dfMiniPlayer_volume = A3;
 
 const uint8_t _pin_maxBatteryVoltageDifference = A4;
 
-uint8_t controlPin[4] = { _pin_selectorMultiPlex0, _pin_selectorMultiPlex1, _pin_selectorMultiPlex2, _pin_selectorMultiPlex3 };
-
-const uint8_t muxChannel[6][4] = {
-	{0, 0, 0, 0}, // channel 0
-	{1, 0, 0, 0}, // channel 1
-	{0, 1, 0, 0}, // channel 2
-	{1, 1, 0, 0}, // channel 3
-	{0, 0, 1, 0}, // channel 4
-	{1, 0, 1, 0}, // channel 5
-	//{0, 1, 1, 0}, // channel 6
-	//{1, 1, 1, 0}, // channel 7
-	//{0, 0, 0, 1}, // channel 8
-	//{1, 0, 0, 1}, // channel 9
-	//{0, 1, 0, 1}, // channel 10
-	//{1, 1, 0, 1}, // channel 11
-	//{0, 0, 1, 1}, // channel 12
-	//{1, 0, 1, 1}, // channel 13
-	//{0, 1, 1, 1}, // channel 14
-	//{1, 1, 1, 1}  // channel 15
-};
-
 uint8_t total_takeovers = 0;
 
 const uint8_t max_total_takeovers = 30;
@@ -86,17 +65,20 @@ const uint8_t max_total_takeovers = 30;
 //-----------------------    ATTENZIONE PIN ASSEGNATI a scheda SD file excel !!!!!!!   -------------------------------
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
-const char* idBattery[numberOfBattery] = { "B0", "B1", "B2", "B3", "B4", "B5" }; //, "B1", "B2" };
 
 const float deltaVoltage[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //, 0.00, 0.00 };
 
 float storedBatteryValues[numberOfBattery] = { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 }; //,0.00,0.00 };
 
+float stored_ampere = 0.00;
+
+float stored_watts = 0.00;
+
 uint8_t _demultiplexerPosition = 0;
 
 uint8_t fileNumber = 0;
 
-bool _is_buzzer_disabled = true;
+//bool _is_buzzer_disabled = true;
 
 bool _is_card_writing_disable = false;
 
@@ -114,11 +96,13 @@ uint8_t ii = 0;
 
 void setup()
 {
-	resetAttiny85();
+	analogReference(EXTERNAL);
+
+	Send_Interrupt_To_All_Attiny85();
 
 	delay(2000);
 
-	pinMode(_pin_reset_attiny85, OUTPUT);
+	pinMode(_pin_interrupt_to_attiny85, OUTPUT);
 
 	pinMode(_pin_selectorMultiPlex0, OUTPUT);
 
@@ -136,7 +120,7 @@ void setup()
 
 	digitalWrite(_pin_selectorMultiPlex3, LOW);
 
-	digitalWrite(_pin_reset_attiny85, LOW);
+	digitalWrite(_pin_interrupt_to_attiny85, LOW);
 
 	Serial.begin(9600);
 
@@ -168,7 +152,7 @@ void initFileCard()
 			fileName[4] = (char)(cicle + 48);
 			strcat(fileName, ".csv");
 			fileName[9] = '\0';
-			
+
 #ifdef _DEBUG
 			Serial.println(fileName);
 #endif // _DEBUG
@@ -212,17 +196,14 @@ void initFileCard()
 #ifdef _DEBUG
 		Serial.println(F("SD failed"));
 #endif // _DEBUG
-			playMessageOnDPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
-			while (true) {};
+		playMessageOnDPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
+		while (true) {};
 	}
 }
 
 void loop()
 {
-	setMultiplexer(_demultiplexerPosition);
-
-	//if there is an attiny85 reset delay put here same delay (maybe not important) 
-	//delay(800);
+	set_multiplexer(_demultiplexerPosition);
 
 	char response[6] = {};
 
@@ -239,7 +220,7 @@ void loop()
 	//Attempts if number transformation fails.
 	while ((!is_number(response) || response[0] == '.') && max_attempts < 5)
 	{
-		getDataFromSerialBuffer(&response[0]);	//delay(500);
+		getDataFromSerialBuffer(&response[0]);
 
 #ifdef _DEBUG
 		Serial.println(F("num.wrong"));
@@ -255,6 +236,7 @@ void loop()
 		Serial.println(F("resp.not.num"));
 #endif
 		_demultiplexerPosition = 0;
+
 		return;
 	}
 	if (_idMessage[0] != 'x')
@@ -275,33 +257,20 @@ void loop()
 		_idMessage[0] = response[4];
 	}
 
-	char csvTextLayOut[21] = {};
+	char csv_battery_text_layout[21] = {};
 
-	prepareStringForSDCard(csvTextLayOut, response);
+	prepare_battery_sd_card_string(csv_battery_text_layout, response);
 
-	for (uint8_t i = 0; i < 20; i++)
+	if (is_battery_csv_text_layout_wrong(csv_battery_text_layout))
 	{
-		//Serial.println((char)csvTextLayOut[i]);
-		if (((char)csvTextLayOut[i] < 46 || (char)csvTextLayOut[i] > 59) && (char)csvTextLayOut[2] != 'B')
-		{
-#ifdef _DEBUG
-			Serial.println(F("text.problem"));
-#endif // _DEBUG
-			_demultiplexerPosition = 0;
-			playMessageOnDPlayer(AUDIO_TRACCIA_ERRATA);
-			return;
-		}
+		_demultiplexerPosition = 0;
+		playMessageOnDPlayer(AUDIO_TRACCIA_ERRATA);
+		return;
 	}
 
-	//if (csvTextLayOut[19] == '\0' && csvTextLayOut[20] != '\0')
-	//{
-	//	Serial.println(F("text.problem"));
-	//	_demultiplexerPosition = 0;
-	//	playMessageOnDPlayer(2);
-	//	return;
-	//}
+	store_battery_value(response);
 
-	writeOnSDCard(csvTextLayOut);
+	writeOnSDCard(csv_battery_text_layout);
 
 	if (_demultiplexerPosition == 5)
 	{
@@ -310,6 +279,22 @@ void loop()
 		printStoredBatteryValuesArray();
 #endif 
 		checkActivities();
+
+		set_multiplexer(6);
+
+		get_watts_from_serial_buffer();
+
+		char csv_watts_layout[15]{};
+
+		prepare_watts_sd_card_string(csv_watts_layout);
+
+		char csv_amps_layout[15]{};
+
+		prepare_ampere_sd_card_string(csv_amps_layout);
+
+		writeOnSDCard(csv_watts_layout);
+
+		writeOnSDCard(csv_amps_layout);
 
 		_demultiplexerPosition = 0;
 
@@ -327,95 +312,39 @@ void loop()
 			playMessageOnDPlayer(AUDIO_AQUISIZIONE_DATI);
 		}
 
-		resetAttiny85();
+		Send_Interrupt_To_All_Attiny85();
 	}
 	else
 	{
 		_demultiplexerPosition++;
 	}
-	/* 	if (responseString != "")
+}
+
+bool is_battery_csv_text_layout_wrong(char* csv_text_layout)
+{
+	bool return_value = false;
+
+	for (uint8_t i = 0; i < 20; i++)
+	{
+		//Serial.println((char)csvTextLayOut[i]);
+		if (((char)csv_text_layout[i] < 46 || (char)csv_text_layout[i] > 59) && (char)csv_text_layout[2] != 'B')
 		{
-			// Serial.println(F("-----------------START------------------------"));
+#ifdef _DEBUG
+			Serial.println(F("text.problem"));
+#endif // _DEBUG
+			return_value = true;
+		}
+	}
+	return return_value;
+}
 
-			_idMessage = responseString.substring(5, 6);
+void store_battery_value(char response[6])
+{
+	float number = getNumber(response);
 
-			csvString = "";
+	number = number + deltaVoltage[_demultiplexerPosition];
 
-			csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
-
-			if (csvString.length() != 21)
-			{
-				Serial.print(F("dis-"));
-				Serial.println(responseString);
-				return;
-			}
-
-			writeOnSDCard(csvString);
-
-			++demultiplexerPosition;
-
-			bool condition = true;
-
-			numeroDisallineamenti = 0;
-
-			unsigned long timeForSerialData = millis();
-
-			// clearSerialBuffer();
-
-			while ((millis() - timeForSerialData < 10000) && (demultiplexerPosition < numberOfBattery) && condition)
-			{
-				setMultiplexer(demultiplexerPosition);
-
-				responseString = "";
-
-				responseString = getDataFromSerialBuffer();
-
-				if (responseString != "")
-				{
-					numeroDisallineamenti = 0;
-
-					String csvString = "";
-
-					csvString = prepareStringForSDCard(responseString, demultiplexerPosition);
-
-					if (csvString.length() == 21 && responseString.substring(5, 6) == _idMessage)
-					{
-						writeOnSDCard(csvString);
-
-						timeForSerialData = millis();
-
-						++demultiplexerPosition;
-					}
-					else
-					{
-						Serial.print(F("disallineamento - "));
-						Serial.println(responseString);
-					}
-				}
-			}
-			buzzerSensorActivity(15, 1000, 100, 100);
-
-			checkBatteriesMaxLevel(storedBatteryValues[0]);
-
-			checkBatteriesMinLevel(storedBatteryValues[0]);
-
-			Serial.print(F("Mx.v:"));
-			Serial.println(batteryMaxLevel);
-
-			Serial.print(F("M.v:"));
-			Serial.println(batteryMinLevel);
-
-			if (thereAreUnbalancedBatteries(90))
-			{
-				Serial.println(F("Unbalanced batteries"));
-				buzzerSensorActivity(5, 2500, 80, 200);
-			}
-
-			resetAttiny85();
-			clearSerialBuffer();
-			//idCurrentMessage = "";
-			// Serial.println(F("-----------------END------------------------"));
-		} */
+	storedBatteryValues[_demultiplexerPosition] = number;
 }
 
 void printStoredBatteryValuesArray()
@@ -462,14 +391,21 @@ bool is_number(const String& s)
 
 bool thereAreUnbalancedBatteries()
 {
-	
-	float maxPercentageForAlarm = analogRead(_pin_maxBatteryVoltageDifference) / (1024.00 / 10.00);
-    
+
+    //https://www.desmos.com/calculator/wsfbcw9ffn
+	//See math site for percentage calculate.
+
+	float maxPercentageForAlarm = analogRead(_pin_maxBatteryVoltageDifference) / (1024.00 / 15.00 /*<--max percentage*/);
+
 	float percentageValue = 100 - ((batteryMinLevel / batteryMaxLevel) * 100);
 
 #ifdef _DEBUG
-	Serial.print(F("Percentage value : "));
+	Serial.print(F("% value : "));
 	Serial.print(percentageValue);
+	Serial.println(F("%"));
+
+	Serial.print(F("% max : "));
+	Serial.print(maxPercentageForAlarm);
 	Serial.println(F("%"));
 #endif // _DEBUG
 
@@ -487,36 +423,93 @@ float getNumber(char* response)
 
 void getDataFromSerialBuffer(char* response)
 {
-	SoftwareSerial softwareSerial(3, 99);
+	SoftwareSerial softwareSerial(_pin_rx, 99);
 
 	softwareSerial.begin(600);
 
+	while (!softwareSerial);
+
 	delay(500);
+
+	char trash[20]{};
 
 	if (softwareSerial.available() > 0)
 	{
-		for (int i = 0; i < 19; i++)
-		{
-			softwareSerial.read();
-		}
+		softwareSerial.readBytesUntil('*', trash, 20);
 	}
 
-	delay(500);
-
 	if (softwareSerial.available() > 0)
 	{
-		softwareSerial.readBytesUntil('*', response, 6);
+		softwareSerial.readBytes(response, 6);
 	}
 	response[5] = '\0';
 
 }
 
+void get_watts_from_serial_buffer()
+{
+	stored_ampere = 0;
+
+	stored_watts = 0;
+
+	SoftwareSerial softwareSerial(_pin_rx, 99);
+
+	softwareSerial.begin(600);
+
+	while (!softwareSerial);
+
+	delay(800);
+
+	char trash[20]{};
+
+	if (softwareSerial.available() > 0)
+	{
+		softwareSerial.readBytesUntil('*', trash, 19);
+	}
+
+	if (softwareSerial.available() > 0)
+	{
+		stored_ampere = softwareSerial.parseFloat();
+	}
+
+	if (softwareSerial.available() > 0)
+	{
+		stored_watts = softwareSerial.parseFloat();
+	}
+
+#ifdef _DEBUG
+	Serial.print("Ampere :");
+	Serial.println(stored_ampere);
+
+	Serial.print("watts :");
+	Serial.println(stored_watts);
+#endif // _DEBUG
+
+}
+
 //Serial.print("setMultiplexer channel : "); Serial.println(channel);
 
-
-void setMultiplexer(int channel)
+void set_multiplexer(int channel)
 {
-
+	uint8_t controlPin[4] = { _pin_selectorMultiPlex0, _pin_selectorMultiPlex1, _pin_selectorMultiPlex2, _pin_selectorMultiPlex3 };
+	const uint8_t muxChannel[7][4] = {
+		{0, 0, 0, 0}, // channel 0
+		{1, 0, 0, 0}, // channel 1
+		{0, 1, 0, 0}, // channel 2
+		{1, 1, 0, 0}, // channel 3
+		{0, 0, 1, 0}, // channel 4
+		{1, 0, 1, 0}, // channel 5
+		{0, 1, 1, 0}, // channel 6
+		//{1, 1, 1, 0}, // channel 7
+		//{0, 0, 0, 1}, // channel 8
+		//{1, 0, 0, 1}, // channel 9
+		//{0, 1, 0, 1}, // channel 10
+		//{1, 1, 0, 1}, // channel 11
+		//{0, 0, 1, 1}, // channel 12
+		//{1, 0, 1, 1}, // channel 13
+		//{0, 1, 1, 1}, // channel 14
+		//{1, 1, 1, 1}  // channel 15
+	};
 	// loop through the 4 sig
 	for (int i = 0; i < 4; i++)
 	{
@@ -524,17 +517,13 @@ void setMultiplexer(int channel)
 	}
 }
 
-void prepareStringForSDCard(char* csvTextLayOut, char response[6])
+void prepare_battery_sd_card_string(char* csvTextLayOut, char response[6])
 {
+	const char* idBattery[numberOfBattery] = { "B0", "B1", "B2", "B3", "B4", "B5" }; //, "B1", "B2" };
+
 	char deltaVoltage_to_string[4] = {};
 
 	response[4] = '\0';
-
-	float number = getNumber(response);
-
-	//Serial.println(number);
-
-	number = number + deltaVoltage[_demultiplexerPosition];
 
 	dtostrf(deltaVoltage[_demultiplexerPosition], 4, 2, deltaVoltage_to_string);
 
@@ -552,21 +541,40 @@ void prepareStringForSDCard(char* csvTextLayOut, char response[6])
 #ifdef _DEBUG
 	Serial.println(csvTextLayOut);
 #endif // _DEBUG
-	storedBatteryValues[_demultiplexerPosition] = number;
+
 }
 
-/*
-String prepareStringForSDCardOld(String message, uint8_t demultiplexerPosition)
+void prepare_watts_sd_card_string(char* csv_text_layout)
 {
-	String csvString = "";
-	double number = getNumber(message);
-	number = number + deltaVoltage[demultiplexerPosition];
-	csvString = message.substring(5, 6) + ";" + String(idBattery[demultiplexerPosition]) + ";" + String(number) + ";" + String(deltaVoltage[demultiplexerPosition]) + ";" + message;
-	Serial.println(csvString);
-	storedBatteryValues[demultiplexerPosition] = number;
-	// writeOnSDCard(csvString);
-	return csvString;
-} */
+	char watts[7];
+	dtostrf(stored_watts, 7, 2, watts);
+	strcpy(csv_text_layout, "watts");
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, watts);
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
+	csv_text_layout[20] = '\0';
+#ifdef _DEBUG
+	Serial.print("csv_watts_layout: "); Serial.println(csv_text_layout);
+#endif 
+}
+
+void prepare_ampere_sd_card_string(char* csv_text_layout)
+{
+	char amps[5];
+	dtostrf(stored_ampere, 5, 2, amps);
+	strcpy(csv_text_layout, "amps");
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, amps);
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
+	csv_text_layout[20] = '\0';
+#ifdef _DEBUG
+	Serial.print("csv_amps_layout: "); Serial.println(csv_text_layout);
+#endif 
+}
 
 void writeOnSDCard(char* message)
 {
@@ -611,11 +619,11 @@ void writeOnSDCard(char* message)
 	// }
 }
 
-void resetAttiny85()
+void Send_Interrupt_To_All_Attiny85()
 {
-	digitalWrite(_pin_reset_attiny85, HIGH);
-	delay(500);
-	digitalWrite(_pin_reset_attiny85, LOW);
+	digitalWrite(_pin_interrupt_to_attiny85, HIGH);
+	//delay(500);
+	digitalWrite(_pin_interrupt_to_attiny85, LOW);
 }
 
 void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)

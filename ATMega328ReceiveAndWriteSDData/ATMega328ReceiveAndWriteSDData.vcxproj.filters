@@ -19,6 +19,9 @@
     <Filter Include="audio">
       <UniqueIdentifier>{1ac45dc4-7215-4be0-8abe-de531552b14c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="documents">
+      <UniqueIdentifier>{3872299b-e362-4be9-ba51-968663bc3a91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.ATMega328ReceiveAndWriteSDData.vsarduino.h">

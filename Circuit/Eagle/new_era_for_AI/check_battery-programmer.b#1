@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.5.2">
+<eagle version="9.6.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -158,7 +158,7 @@
 <layer number="255" name="routoute" color="7" fill="1" visible="no" active="yes"/>
 </layers>
 <board>
-<fusionsync huburn="a.cGVyc29uYWw6dWUyZDdmOThi" projecturn="a.cGVyc29uYWw6dWUyZDdmOThiIzIwMjAxMTA1MzUwMDc2Njgx" f3durn="urn:adsk.wipprod:dm.lineage:Sfrp7S-jSqKYQXxY8w-WgQ" pcbguid="81441e6f-d9b8-4305-a09b-ce2376f146d5" lastpulledtime="" lastsyncedchangeguid="9a0dcba4-15db-f250-db5e-a71cff48e025"/>
+<fusionsync huburn="a.cGVyc29uYWw6dWUyZDdmOThi" projecturn="a.cGVyc29uYWw6dWUyZDdmOThiIzIwMjAxMTA1MzUwMDc2Njgx" f3durn="urn:adsk.wipprod:dm.lineage:Sfrp7S-jSqKYQXxY8w-WgQ" pcbguid="81441e6f-d9b8-4305-a09b-ce2376f146d5" lastpulledtime="" lastsyncedchangeguid="9a0dcba4-15db-f250-db5e-a71cff48e025" latestrevisionid="" lastsyncedrevisionid="" lastboardhashguid="" lastpushedtime="" linktopcb3d="false"/>
 <plain>
 <wire x1="4.2" y1="42" x2="72.3" y2="42" width="0.4064" layer="20"/>
 <wire x1="72.3" y1="42" x2="72.3" y2="5" width="0.4064" layer="20"/>
@@ -183,12 +183,11 @@
 <hole x="6" y="7" drill="0.35"/>
 <hole x="70" y="7" drill="0.35"/>
 <hole x="70.5" y="40" drill="0.35"/>
-<text x="15.78105625" y="34.52251875" size="1.778" layer="21">cell-battery-programmer</text>
+<text x="19.451540625" y="29.96533125" size="1.778" layer="21">cell-battery-programmer</text>
 <circle x="6" y="40" radius="0.5" width="1.27" layer="16"/>
 <circle x="6" y="7" radius="0.5" width="1.27" layer="16"/>
 <circle x="70" y="7" radius="0.5" width="1.27" layer="16"/>
 <circle x="70.5" y="40" radius="0.5" width="1.27" layer="16"/>
-<text x="21.693" y="16.599246875" size="0.6096" layer="21" rot="R270">zener-3.9V</text>
 <rectangle x1="25.365571875" y1="27.790790625" x2="43.915465625" y2="34.263584375" layer="16"/>
 <rectangle x1="27.895103125" y1="33.9118" x2="43.915465625" y2="38.62568125" layer="16"/>
 <rectangle x1="22.836040625" y1="28.424" x2="27.19245625" y2="32.99716875" layer="16"/>
@@ -203,6 +202,18 @@
 <rectangle x1="35.48369375" y1="21.7401375" x2="40.613021875" y2="24.554396875" layer="16"/>
 <rectangle x1="8.78309375" y1="6.121009375" x2="11.52341875" y2="7.809565625" layer="16"/>
 <rectangle x1="33.3054875" y1="8.653840625" x2="36.0458125" y2="12.804871875" layer="16"/>
+<rectangle x1="-11.129934375" y1="42.754196875" x2="100.371775" y2="63.523415625" layer="16"/>
+<rectangle x1="-17.301990625" y1="-10.435265625" x2="3.74370625" y2="63.016846875" layer="16"/>
+<rectangle x1="73.25520625" y1="-4.05253125" x2="101.48476875" y2="63.4221" layer="16"/>
+<rectangle x1="-18.183478125" y1="-21.35845625" x2="101.932390625" y2="4.37673125" layer="16"/>
+<text x="12.63216875" y="6.27649375" size="1.016" layer="21" rot="R270">external-5.1v</text>
+<text x="14.82874375" y="7.119159375" size="1.016" layer="21" rot="R270">serial-out</text>
+<text x="18.616375" y="-0.98571875" size="1.016" layer="21" rot="R90">external-reset</text>
+<text x="20.940465625" y="0.4838" size="1.016" layer="21" rot="R90">external-ground</text>
+<text x="22.9778" y="7.23280625" size="1.016" layer="21" rot="R270">zener-3.9V</text>
+<text x="26.17398125" y="0.950321875" size="1.016" layer="21" rot="R90">zener-10V</text>
+<text x="27.7320375" y="7.288925" size="1.016" layer="21" rot="R270">ground-battery</text>
+<text x="31.20835625" y="0.578446875" size="1.016" layer="21" rot="R90">12V-battery</text>
 </plain>
 <libraries>
 <library name="testpad" urn="urn:adsk.eagle:library:385">

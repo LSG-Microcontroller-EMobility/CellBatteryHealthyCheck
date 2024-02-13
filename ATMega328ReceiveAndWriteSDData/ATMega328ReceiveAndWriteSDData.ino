@@ -95,7 +95,7 @@ uint8_t ii = 0;
 
 bool _is_card_writing_disable = false;
 
-bool _is_DPlayer_disable = true;
+bool _is_DPlayer_disable = false;
 
 void setup()
 {
@@ -208,6 +208,17 @@ void initFileCard()
 
 void loop()
 {
+	////volume test
+	//Serial.print("volume : "); Serial.println(analogRead(A3));
+	////volume test
+
+	////percentage test
+	//Serial.print("percentage : "); Serial.println(analogRead(A4));
+	////percentage test
+	//delay(500);
+	//return;
+
+
 	set_multiplexer(_demultiplexerPosition);
 
 	char response[6] = {};

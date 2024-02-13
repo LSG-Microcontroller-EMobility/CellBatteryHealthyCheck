@@ -27,6 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "circuits", "circuits", "{D1
 		Circuit\Eagle\new_era_for_AI\check_battery-programmer.brd = Circuit\Eagle\new_era_for_AI\check_battery-programmer.brd
 		Circuit\Eagle\new_era_for_AI\check_battery.brd = Circuit\Eagle\new_era_for_AI\check_battery.brd
 		Circuit\Eagle\new_era_for_AI\NanoDemultiplexerAndSDcardNew2.brd = Circuit\Eagle\new_era_for_AI\NanoDemultiplexerAndSDcardNew2.brd
+		Circuit\Eagle\new_era_for_AI\NanoDemultiplexerAndSDcardNew3.brd = Circuit\Eagle\new_era_for_AI\NanoDemultiplexerAndSDcardNew3.brd
 	EndProjectSection
 EndProject
 Global

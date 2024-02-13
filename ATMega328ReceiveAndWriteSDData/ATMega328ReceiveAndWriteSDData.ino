@@ -66,7 +66,7 @@ const uint8_t max_total_takeovers = 30;
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
 
-const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00, 0.00 };//, 0.00, 0.00, 0.00 };
+const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00, 0.00 };
 
 float storedBatteryValues[_numberOfBattery] = { 0.00, 0.00, 0.00 };// , 0.00, 0.00, 0.00 };
 
@@ -217,7 +217,6 @@ void loop()
 	////percentage test
 	//delay(500);
 	//return;
-
 
 	set_multiplexer(_demultiplexerPosition);
 
@@ -411,7 +410,18 @@ bool thereAreUnbalancedBatteries()
     //https://www.desmos.com/calculator/wsfbcw9ffn
 	//See math site for percentage calculate.
 
-	float maxPercentageForAlarm = analogRead(_pin_maxBatteryVoltageDifference) / (1024.00 / 15.00 /*<--max percentage*/);
+	//float maxPercentageForAlarm = analogRead(_pin_maxBatteryVoltageDifference) / (1024.00 / 15.00 /*<--max percentage*/);
+
+	float x = 0.00f;
+
+	for (int i = 0; i < _numberOfBattery; i++)
+	{
+		x = x + storedBatteryValues[i];
+	}
+
+	x = x / _numberOfBattery;
+
+	float maxPercentageForAlarm = -(8.60f * x) + 32.15f;
 
 	float percentageValue = 100 - ((batteryMinLevel / batteryMaxLevel) * 100);
 
@@ -738,7 +748,7 @@ void playMessageOnDPlayer(uint8_t messageCode)
 	Serial.println(F("DFPlayer Mini online."));
 #endif // _DEBUG
 
-	uint16_t volume = (30.00 / 1024.00) * analogRead(A3);
+	uint16_t volume = (30.00 / 1024.00) * analogRead(_pin_dfMiniPlayer_volume);
 
 	//Serial.println(volume);
 

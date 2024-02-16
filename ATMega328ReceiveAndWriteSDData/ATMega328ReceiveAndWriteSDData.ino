@@ -33,6 +33,8 @@
 
 #define AUDIO_ALL_FILES_DELETED 13	
 
+#define AUDIO_INIZIO_STRESS_TEST 14	
+
 const uint8_t _numberOfBattery = 3;
 
 const uint8_t _pin_selectorMultiPlex0 = 4;
@@ -208,6 +210,13 @@ void initFileCard()
 
 void loop()
 {
+	/*playMessageOnDPlayer(AUDIO_INIZIO_STRESS_TEST);
+
+	Serial.println("inizio del test"); 
+
+	return;*/
+
+
 	////volume test
 	//Serial.print("volume : "); Serial.println(analogRead(A3));
 	////volume test

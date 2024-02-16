@@ -77,5 +77,8 @@
     <Media Include="mp3\0011_eliminazione_dati_30_sec.mp3">
       <Filter>audio</Filter>
     </Media>
+    <Media Include="mp3\0014_inizio test.mp3">
+      <Filter>audio</Filter>
+    </Media>
   </ItemGroup>
 </Project>

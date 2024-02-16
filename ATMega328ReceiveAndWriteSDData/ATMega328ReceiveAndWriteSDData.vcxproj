@@ -199,6 +199,7 @@
     <Media Include="mp3\0011_eliminazione_dati_30_sec.mp3" />
     <Media Include="mp3\0012_eliminazione_dsati_10_sec.mp3" />
     <Media Include="mp3\0013_files_eliminati.mp3" />
+    <Media Include="mp3\0014_inizio test.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -156,7 +156,7 @@
 <layer number="255" name="routoute" color="7" fill="1" visible="no" active="yes"/>
 </layers>
 <board>
-<fusionsync huburn="a.cGVyc29uYWw6dWUyZDdmOThi" projecturn="a.cGVyc29uYWw6dWUyZDdmOThiIzIwMTgxMDA3MTUzMDU1MzU2" f3durn="urn:adsk.wipprod:dm.lineage:kfThklCtRO-0IsL0WW2rBQ" pcbguid="19c534b8-d8e0-40ee-bff1-2133593f0d12" lastpulledtime="" lastsyncedchangeguid="4531d23d-686a-03fc-af31-f0f2b31705c6" latestrevisionid="" lastsyncedrevisionid="" lastboardhashguid="" lastpushedtime="" linktopcb3d="false"/>
+<fusionsync huburn="a.cGVyc29uYWw6dWUyZDdmOThi" projecturn="a.cGVyc29uYWw6dWUyZDdmOThiIzIwMjAxMTA1MzUwMDc2Njgx" f3durn="urn:adsk.wipprod:dm.lineage:1tGPk71HRKuaRsK9JdyrNw" pcbguid="49fa1475-f904-4107-8802-df07827fb998" lastpulledtime="" lastsyncedchangeguid="4531d23d-686a-03fc-af31-f0f2b31705c6" latestrevisionid="3b3c6e02-d642-403b-9022-7d49290cbe41" lastsyncedrevisionid="3b3c6e02-d642-403b-9022-7d49290cbe41" lastboardhashguid="f7d2d182-cbc1-06f3-3d4a-f15e336c2704" lastpushedtime="2024-01-31T10:39:01Z" linktopcb3d="true"/>
 <plain>
 <text x="21.69" y="8.27" size="0.4064" layer="38">M-0v</text>
 <text x="21.19" y="4.23" size="0.4064" layer="38">R-1</text>

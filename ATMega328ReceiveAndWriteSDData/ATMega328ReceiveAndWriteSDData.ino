@@ -35,7 +35,7 @@
 
 #define AUDIO_INIZIO_STRESS_TEST 14	
 
-const uint8_t _numberOfBattery = 3;
+const uint8_t _numberOfBattery = 6;
 
 const uint8_t _pin_selectorMultiPlex0 = 4;
 
@@ -63,20 +63,30 @@ uint8_t total_takeovers = 0;
 
 const uint8_t max_total_takeovers = 30;
 
+const uint8_t demultiplexer_position_start = 0;
+
 
 //-----------------------    ATTENZIONE PIN ASSEGNATI a scheda SD file excel !!!!!!!   -------------------------------
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 
 
-const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00, 0.00 };
+const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00 , 0.00, 0.00, 0.00 ,0.00 };
 
-float storedBatteryValues[_numberOfBattery] = { 0.00, 0.00, 0.00 };// , 0.00, 0.00, 0.00 };
+float storedBatteryValues[_numberOfBattery] = { 0.00, 0.00 , 0.00, 0.00, 0.00 ,0.00};
+
+//const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00 , 0.00 ,0.00};
+//
+//float storedBatteryValues[_numberOfBattery] = { 0.00, 0.00 , 0.00, 0.00};
+
+//const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00 , 0.00 };
+//
+//float storedBatteryValues[_numberOfBattery] = { 0.00, 0.00 , 0.00 };
 
 float stored_ampere = 0.00;
 
 float stored_watts = 0.00;
 
-uint8_t _demultiplexerPosition = 0;
+uint8_t _demultiplexerPosition = demultiplexer_position_start;
 
 uint8_t fileNumber = 0;
 
@@ -259,7 +269,7 @@ void loop()
 #ifdef _DEBUG
 		Serial.println(F("resp.not.num"));
 #endif
-		_demultiplexerPosition = 0;
+		_demultiplexerPosition = demultiplexer_position_start;
 
 		return;
 	}
@@ -272,7 +282,7 @@ void loop()
 			Serial.println(F("idMessage problems"));
 #endif // _DEBUG
 
-			_demultiplexerPosition = 0;
+			_demultiplexerPosition = demultiplexer_position_start;
 			_idMessage[0] = 'x';
 			return;
 		}
@@ -287,7 +297,7 @@ void loop()
 
 	if (is_battery_csv_text_layout_wrong(csv_battery_text_layout))
 	{
-		_demultiplexerPosition = 0;
+		_demultiplexerPosition = demultiplexer_position_start;
 		playMessageOnDPlayer(AUDIO_TRACCIA_ERRATA);
 		return;
 	}
@@ -320,7 +330,7 @@ void loop()
 
 		writeOnSDCard(csv_amps_layout);
 
-		_demultiplexerPosition = 0;
+		_demultiplexerPosition = demultiplexer_position_start;
 
 		_idMessage[0] = 'x';
 
@@ -554,7 +564,11 @@ void set_multiplexer(int channel)
 
 void prepare_battery_sd_card_string(char* csvTextLayOut, char response[6])
 {
-	const char* idBattery[_numberOfBattery] = { "B0", "B1", "B2" };//, "B3", "B4", "B5"};
+	const char* idBattery[_numberOfBattery] = { "B0", "B1", "B2", "B3", "B4", "B5"};
+
+	//const char* idBattery[_numberOfBattery] = { "B0", "B1", "B2" };
+
+	//const char* idBattery[_numberOfBattery] = { "B0", "B1", "B2","B3"};
 
 	char deltaVoltage_to_string[4] = {};
 
@@ -658,7 +672,7 @@ void writeOnSDCard(char* message)
 void Send_Interrupt_To_All_Attiny85()
 {
 	digitalWrite(_pin_interrupt_to_attiny85, HIGH);
-	//delay(500);
+	delay(200);
 	digitalWrite(_pin_interrupt_to_attiny85, LOW);
 }
 

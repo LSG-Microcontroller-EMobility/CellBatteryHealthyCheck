@@ -9,6 +9,8 @@
 #include <string.h>
 #include <DFRobotDFPlayerMini.h>
 
+//#define _DEBUG
+
 #define AUDIO_DISLIVELLO_BATTERIE 1
 
 #define AUDIO_TRACCIA_ERRATA 2
@@ -493,9 +495,9 @@ void getDataFromSerialBuffer(char* response)
 
 void get_watts_from_serial_buffer()
 {
-	stored_ampere = 0;
+	stored_ampere = 0.00f;
 
-	stored_watts = 0;
+	stored_watts = 0.00f;
 
 	SoftwareSerial softwareSerial(_pin_rx, 99);
 

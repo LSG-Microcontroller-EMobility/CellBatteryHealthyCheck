@@ -9,10 +9,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATMega328ReceiveAndWriteSDD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documents", "documents", "{02F040A5-E54A-42F0-8D80-BAC0347CC3DE}"
 	ProjectSection(SolutionItems) = preProject
-		Documents\BattLevel.txt = Documents\BattLevel.txt
+		Documents(README-IMPORTANT-BEFORE-SETTINGS)\BattLevel(README-IMPORTANT).txt = Documents(README-IMPORTANT-BEFORE-SETTINGS)\BattLevel(README-IMPORTANT).txt
 		percentageFormula.txt = percentageFormula.txt
-		Documents\percetageFormula.xopp = Documents\percetageFormula.xopp
-		Documents\schemaBatteria.png = Documents\schemaBatteria.png
+		Documents(README-IMPORTANT-BEFORE-SETTINGS)\percetageFormula.xopp = Documents(README-IMPORTANT-BEFORE-SETTINGS)\percetageFormula.xopp
+		Documents(README-IMPORTANT-BEFORE-SETTINGS)\schemaBatteria.png = Documents(README-IMPORTANT-BEFORE-SETTINGS)\schemaBatteria.png
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3dPrinting", "3dPrinting", "{62A83716-35BC-4EA2-80CF-B6682E4D5E16}"

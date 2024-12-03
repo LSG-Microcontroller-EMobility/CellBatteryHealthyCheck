@@ -9,7 +9,7 @@
 #include <string.h>
 #include <DFRobotDFPlayerMini.h>
 
-//#define _DEBUG
+#define _DEBUG
 
 #define AUDIO_DISLIVELLO_BATTERIE 1
 

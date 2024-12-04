@@ -187,6 +187,7 @@
 <text x="2.5" y="18" size="0.6096" layer="21">in-reset</text>
 <text x="5.26648125" y="9.276090625" size="0.6096" layer="21" rot="R180">in-5.1v</text>
 <text x="16" y="2.8" size="1.27" layer="38" rot="MR180">check-battery-module v2.00</text>
+<text x="-14.2" y="31.6" size="0.8128" layer="21">To check error on 2.2k ... no connected. It is possible to change resistor with 10k and connect to TIL113 Interrupt becouse is better to have pullup resistor on transistor TIL </text>
 </plain>
 <libraries>
 <library name="eagle-ltspice">
@@ -1718,11 +1719,11 @@ design rules under a new name.</description>
 </element>
 <element name="E$82" library="eagle-ltspice" package="0204/7" value="100" x="41.5" y="14.5" smashed="yes">
 <attribute name="NAME" x="38.96" y="15.7954" size="0.9906" layer="25" ratio="10"/>
-<attribute name="VALUE" x="39.944153125" y="15.68205" size="0.6096" layer="27" ratio="10"/>
+<attribute name="VALUE" x="41.144153125" y="14.28205" size="0.6096" layer="27" ratio="10"/>
 </element>
 <element name="E$2" library="rcl" library_urn="urn:adsk.eagle:library:334" package="RTRIM3296W" package3d_urn="urn:adsk.eagle:package:26033/1" value="501" x="49.45" y="17.9" smashed="yes">
 <attribute name="NAME" x="46.8" y="13.4" size="1.27" layer="25" rot="R90"/>
-<attribute name="VALUE" x="46.784640625" y="21.075871875" size="0.6096" layer="27" rot="R90"/>
+<attribute name="VALUE" x="48.184640625" y="17.475871875" size="0.6096" layer="27" rot="R90"/>
 </element>
 <element name="E$5" library="rcl" library_urn="urn:adsk.eagle:library:334" package="RTRIM3296W" package3d_urn="urn:adsk.eagle:package:26033/1" value="105" x="11.5" y="9.5" smashed="yes" rot="R90">
 <attribute name="NAME" x="16" y="6.85" size="1.27" layer="25" rot="R180"/>

@@ -51,8 +51,6 @@ const uint8_t _pin_rx = 3;
 
 const uint8_t _pin_interrupt_to_attiny85 = 9;
 
-//const uint8_t _pin_buzzer = 8;
-
 const uint8_t _pin_dfMiniPlayer_rx = A1;
 
 const uint8_t _pin_dfMiniPlayer_tx = A2;
@@ -76,14 +74,6 @@ const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00 , 0.00, 0.00, 0.00 ,0.
 
 float storedBatteryValues[_numberOfBattery] = { 0.00, 0.00 , 0.00, 0.00, 0.00 ,0.00};
 
-//const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00 , 0.00 ,0.00};
-//
-//float storedBatteryValues[_numberOfBattery] = { 0.00, 0.00 , 0.00, 0.00};
-
-//const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00 , 0.00 };
-//
-//float storedBatteryValues[_numberOfBattery] = { 0.00, 0.00 , 0.00 };
-
 float stored_ampere = 0.00;
 
 float stored_watts = 0.00;
@@ -91,8 +81,6 @@ float stored_watts = 0.00;
 uint8_t _demultiplexerPosition = demultiplexer_position_start;
 
 uint8_t fileNumber = 0;
-
-//bool _is_buzzer_disabled = true;
 
 uint8_t numeroDisallineamenti = 0;
 
@@ -105,7 +93,6 @@ float batteryMinLevel = 0.00f;
 const uint8_t max_files_numbers = 9;  //MAX 9
 
 uint8_t ii = 0;
-
 
 bool _is_card_writing_disable = false;
 
@@ -141,15 +128,13 @@ void setup()
 
 	Serial.begin(9600);
 
-	/*pinMode(_pin_buzzer, OUTPUT);*/
-
 	initFileCard();
 
-
-	//Serial.println(F("restart"));
-
+#ifdef _DEBUG
+	Serial.println(F("restart"));
+#endif // _DEBUG
+	
 	playMessageOnDPlayer(AUDIO_SISTEMA_INIZIALIZZATO);
-
 
 }
 
@@ -239,6 +224,13 @@ void loop()
 	//delay(500);
 	//return;
 
+
+	//Send_Interrupt_To_All_Attiny85();
+
+	//delay(1000);
+
+	//return;
+
 	set_multiplexer(_demultiplexerPosition);
 
 	char response[6] = {};
@@ -246,9 +238,7 @@ void loop()
 	getDataFromSerialBuffer(&response[0]);
 
 #ifdef _DEBUG
-	Serial.print(F("#"));
-	Serial.print(response);
-	Serial.println(F("#"));
+	Serial.print(F("#"));Serial.print(response);Serial.println(F("#"));
 #endif
 
 	uint8_t max_attempts = 0;
@@ -281,7 +271,7 @@ void loop()
 			playMessageOnDPlayer(AUDIO_ID_MESSAGE_WRONG);
 
 #ifdef _DEBUG
-			Serial.println(F("idMessage problems"));
+			Serial.println(F("idMess. problm"));
 #endif // _DEBUG
 
 			_demultiplexerPosition = demultiplexer_position_start;
@@ -399,13 +389,11 @@ void checkActivities()
 
 
 #ifdef _DEBUG
-	Serial.print(F("Mx.v:"));
-	Serial.println(batteryMaxLevel);
+	Serial.print(F("Mx.V:"));Serial.println(batteryMaxLevel);
 #endif // _DEBUG
 
 #ifdef _DEBUG
-	Serial.print(F("M.v:"));
-	Serial.println(batteryMinLevel);
+	Serial.print(F("Min.V:"));Serial.println(batteryMinLevel);
 #endif // _DEBUG
 
 	if (thereAreUnbalancedBatteries())
@@ -447,13 +435,8 @@ bool thereAreUnbalancedBatteries()
 	float percentageValue = 100 - ((batteryMinLevel / batteryMaxLevel) * 100);
 
 #ifdef _DEBUG
-	Serial.print(F("% value : "));
-	Serial.print(percentageValue);
-	Serial.println(F("%"));
-
-	Serial.print(F("% max : "));
-	Serial.print(maxPercentageForAlarm);
-	Serial.println(F("%"));
+	Serial.print(F("% value : "));Serial.print(percentageValue);Serial.println(F("%"));
+	Serial.print(F("% max : "));Serial.print(maxPercentageForAlarm);Serial.println(F("%"));
 #endif // _DEBUG
 
 	if (percentageValue > maxPercentageForAlarm)
@@ -525,11 +508,8 @@ void get_watts_from_serial_buffer()
 	}
 
 #ifdef _DEBUG
-	Serial.print("Ampere :");
-	Serial.println(stored_ampere);
-
-	Serial.print("watts :");
-	Serial.println(stored_watts);
+	Serial.print(F("Ampere :"));Serial.println(stored_ampere);
+	Serial.print(F("watts :"));Serial.println(stored_watts);
 #endif // _DEBUG
 
 }
@@ -676,6 +656,9 @@ void Send_Interrupt_To_All_Attiny85()
 	digitalWrite(_pin_interrupt_to_attiny85, HIGH);
 	delay(200);
 	digitalWrite(_pin_interrupt_to_attiny85, LOW);
+#ifdef _DEBUG
+	Serial.println(F("----------  Inter. send -----------"));
+#endif // _DEBUG
 }
 
 void buzzerSensorActivity(uint8_t numberOfCicle, unsigned int frequency, unsigned long duration, uint16_t pause)

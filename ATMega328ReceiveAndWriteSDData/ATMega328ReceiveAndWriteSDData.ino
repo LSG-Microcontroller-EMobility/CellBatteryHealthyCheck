@@ -9,7 +9,7 @@
 #include <string.h>
 #include <DFRobotDFPlayerMini.h>
 
-#define _DEBUG
+//#define _DEBUG
 
 #define AUDIO_DISLIVELLO_BATTERIE 1
 
@@ -98,11 +98,14 @@ bool _is_card_writing_disable = false;
 
 bool _is_DPlayer_disable = false;
 
+char fileName[15] = {};
+
+
 void setup()
 {
 	analogReference(EXTERNAL);
 
-	Send_Interrupt_To_All_Attiny85();
+	send_interrupt_to_all_attiny85();
 
 	delay(5000);
 
@@ -137,8 +140,6 @@ void setup()
 	playMessageOnDPlayer(AUDIO_SISTEMA_INIZIALIZZATO);
 
 }
-
-char fileName[15] = {};
 
 void initFileCard()
 {
@@ -225,7 +226,7 @@ void loop()
 	//return;
 
 
-	//Send_Interrupt_To_All_Attiny85();
+	//send_interrupt_to_all_attiny85();
 
 	//delay(1000);
 
@@ -338,7 +339,7 @@ void loop()
 			playMessageOnDPlayer(AUDIO_AQUISIZIONE_DATI);
 		}
 
-		Send_Interrupt_To_All_Attiny85();
+		send_interrupt_to_all_attiny85();
 	}
 	else
 	{
@@ -509,7 +510,7 @@ void get_watts_from_serial_buffer()
 
 #ifdef _DEBUG
 	Serial.print(F("Ampere :"));Serial.println(stored_ampere);
-	Serial.print(F("watts :"));Serial.println(stored_watts);
+	Serial.print(F("Watts/h :"));Serial.println(stored_watts);
 #endif // _DEBUG
 
 }
@@ -587,7 +588,7 @@ void prepare_watts_sd_card_string(char* csv_text_layout)
 	strcat(csv_text_layout, ";");
 	csv_text_layout[20] = '\0';
 #ifdef _DEBUG
-	Serial.print("csv_watts_layout: "); Serial.println(csv_text_layout);
+	Serial.print(F("csv_watts_layout: ")); Serial.println(csv_text_layout);
 #endif 
 }
 
@@ -622,7 +623,7 @@ void writeOnSDCard(char* message)
 	{
 		myFile.println(message);
 #ifdef _DEBUG
-		Serial.println(F("write"));
+		Serial.println(F("write.SD"));
 #endif // _DEBUG
 		myFile.close();
 	}
@@ -630,7 +631,7 @@ void writeOnSDCard(char* message)
 	{
 		//buzzerSensorActivity(5, 400, 1000, 500);
 #ifdef _DEBUG
-		Serial.println(F("err.open.file"));
+		Serial.println(F("err.SD"));
 #endif // _DEBUG
 		playMessageOnDPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		myFile.close();
@@ -651,13 +652,14 @@ void writeOnSDCard(char* message)
 	// }
 }
 
-void Send_Interrupt_To_All_Attiny85()
+void send_interrupt_to_all_attiny85()
 {
 	digitalWrite(_pin_interrupt_to_attiny85, HIGH);
 	delay(200);
 	digitalWrite(_pin_interrupt_to_attiny85, LOW);
+
 #ifdef _DEBUG
-	Serial.println(F("----------  Inter. send -----------"));
+	Serial.println(F("--  Inter. send --"));
 #endif // _DEBUG
 }
 

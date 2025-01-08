@@ -1,0 +1,4 @@
+ lib="C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-pspicefiles\zener_best_practices.lib", offset=253, size=81
+ lib="C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-pspicefiles\zener_best_practices.lib", offset=42, size=210
+ lib=C:\OrCAD\OrCAD_16.6_Lite\tools\PSpice\Library\breakout.lib, offset=9106, size=133
+ lib=C:\OrCAD\OrCAD_16.6_Lite\tools\PSpice\Library\anl_misc.lib, offset=21482, size=1021

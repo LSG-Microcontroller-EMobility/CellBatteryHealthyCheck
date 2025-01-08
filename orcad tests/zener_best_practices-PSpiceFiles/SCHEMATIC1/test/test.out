@@ -1,0 +1,149 @@
+
+**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "test.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+.LIB "../../../zener_best_practices-pspicefiles/zener_best_practices.lib" 
+* From [PSPICE NETLIST] section of C:\Users\luigi.santagada\AppData\Roaming\SPB_16.6\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "nomd.lib" 
+
+*Analysis directives: 
+.TRAN  0 5 0 0.001 
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source ZENER_BEST_PRACTICES
+V_V6         N44214 0  
++SIN 12 2 0.5 0 0 0
+R_R17         N44376 N44272  470 TC=0,0 
+X_R18         N44376 N44448 0 POT PARAMS: SET=1 VALUE=100k
+C_C2         0 N44376  0.1uF  TC=0,0 
+X_U5         N44214 N44244 Sw_tOpen PARAMS: tOpen=5 ttran=1u Rclosed=0.01
++  Ropen=1Meg
+X_U6         N444300 N44448 Sw_tOpen PARAMS: tOpen=5 ttran=1u Rclosed=0.01
++  Ropen=1Meg
+D_D1         N44272 N44244 1N4740A 
+D_D2         0 N444300 D1N4733 
+
+**** RESUMING test.cir ****
+.END
+
+**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
+
+
+ ****     Diode MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               1N4740A         D1N4733         
+          IS   50.000000E-15    1.214000E-15 
+           N    1.1                          
+         ISR                    2.601000E-09 
+          BV   10               5.1          
+         IBV    5.000000E-06     .70507      
+         NBV                     .74348      
+        IBVL                    4.827400E-03 
+        NBVL                    6.7393       
+          RS     .25            1.078        
+          TT   50.000000E-09                 
+         CJO   68.900000E-12  185.000000E-12 
+          VJ                     .75         
+           M                     .3509       
+         XTI    1                            
+        TBV1                  176.471000E-06 
+
+
+**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
+
+
+ ****     Voltage Controlled Switch MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               X_U5.Smod       X_U6.Smod       
+         RON     .01             .01         
+        ROFF    1.000000E+06    1.000000E+06 
+         VON    1               1            
+        VOFF    0               0            
+
+
+**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
+
+
+ ****     INITIAL TRANSIENT SOLUTION       TEMPERATURE =   27.000 DEG C
+
+
+******************************************************************************
+
+
+
+ NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE
+
+
+(N44214)   12.0000 (N44244)   12.0000 (N44272)    1.9647 (N44376)    1.9555     
+
+(N44448)    1.9555 (X_U5.3)    1.0000 (X_U6.3)    1.0000 (N444300)    1.9555    
+
+
+
+
+    VOLTAGE SOURCE CURRENTS
+    NAME         CURRENT
+
+    V_V6        -1.956E-05
+    X_U5.V1     -1.000E-12
+    X_U6.V1     -1.000E-12
+
+    TOTAL POWER DISSIPATION   2.35E-04  WATTS
+
+
+
+          JOB CONCLUDED
+
+**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
+
+
+ ****     JOB STATISTICS SUMMARY
+
+
+******************************************************************************
+
+
+
+  Total job time (using Solver 1)   =         .08
+

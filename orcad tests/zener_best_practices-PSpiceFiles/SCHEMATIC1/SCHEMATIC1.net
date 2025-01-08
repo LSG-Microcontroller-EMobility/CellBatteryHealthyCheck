@@ -1,0 +1,12 @@
+* source ZENER_BEST_PRACTICES
+V_V6         N44214 0  
++SIN 12 2 0.5 0 0 0
+R_R17         N44376 N44272  470 TC=0,0 
+X_R18         N44376 N44448 0 POT PARAMS: SET=1 VALUE=100k
+C_C2         0 N44376  0.1uF  TC=0,0 
+X_U5         N44214 N44244 Sw_tOpen PARAMS: tOpen=5 ttran=1u Rclosed=0.01
++  Ropen=1Meg
+X_U6         N444300 N44448 Sw_tOpen PARAMS: tOpen=5 ttran=1u Rclosed=0.01
++  Ropen=1Meg
+D_D1         N44272 N44244 1N4740A 
+D_D2         0 N444300 D1N4733 

@@ -6,59 +6,70 @@
 
 #include <SoftwareSerial.h>
 
-double measure = 0.00;
+float volatile measure = 0.00f;
 
-unsigned long idMessageCounter;
+//Used for compatibility
+const uint8_t idMessageCounter = 0;
+
+const float _formula = (3.90f / 1024.00f);
 
 SoftwareSerial softwareSerial(99, 3, true);
 
+const uint8_t _reading_divider = 10;
+
+//#define IS_ON_TEST
+
 void setup() {
- 
-  analogReference(EXTERNAL);
 
-  softwareSerial.begin(600);
+	analogReference(EXTERNAL);
 
-  cli();
+	softwareSerial.begin(600);
 
-  PCMSK |= bit(PCINT2);  // want pin D3 / pin 2
-  GIFR |= bit(PCIF);    // clear any outstanding interrupts
-  GIMSK |= bit(PCIE);    // enable pin change interrupts
+	setupADC();
 
-  //printData("ID", false); printData(identifyNumber, true);
+	pinMode(2, INPUT_PULLUP);
 
-  pinMode(2, INPUT_PULLUP);
+	attachInterrupt(0, activateSystemOnAlarmInterrupt, CHANGE);
 
-  attachInterrupt(0, activateSystemOnAlarmInterrupt, CHANGE);
-
-  sei();
-
-  
-
-  for (int i = 0; i < 1000; i++) {
-      measure = measure + ((3.9 / 1024) * analogRead(A2));
-  }
-  measure = measure / 1000;
-  idMessageCounter = 0;
+	for (int i = 0; i < _reading_divider; i++) {
+		measure += (_formula * analogRead(A2));
+	}
+	measure /= _reading_divider;
 }
 
 void loop() {
-  softwareSerial.print(measure);
-  softwareSerial.print(idMessageCounter);
-  softwareSerial.print('*');
-  //importante perchè altrimenti non intercetta interrupt
-  delay(100);
+
+#ifdef IS_ON_TEST
+	measure = 0.00f;
+	for (int i = 0; i < _reading_divider; i++) {
+		measure += (_formula * analogRead(A2));
+	}
+	measure /= _reading_divider;
+#endif // IS_ON_TEST
+
+	softwareSerial.print(measure);
+
+	softwareSerial.print(idMessageCounter);
+
+	softwareSerial.print('*');
+
+	//importante perchè altrimenti non intercetta interrupt
+	delay(100);
 }
+
+void setupADC() {
+	ADMUX = (1 << REFS0);              // Usa AVcc come riferimento
+	ADCSRA = (1 << ADEN)               // Abilita ADC
+		| (1 << ADPS2) | (1 << ADPS1); // Imposta prescaler a 64
+}
+
 
 void activateSystemOnAlarmInterrupt()
 {
+	measure = 00.00f;
 
-#ifdef _DEBUG
-    softwareSerial.println("interrupt");
-#endif // _DEBUG
-
-    for (int i = 0; i < 1000; i++) {
-        measure = measure + ((3.9 / 1024) * analogRead(A2));
-    }
-    measure = measure / 1000;
-    idMessageCounter = 0;
+	for (int i = 0; i < _reading_divider; i++) {
+		measure += (_formula * analogRead(A2));
+	}
+	measure /= _reading_divider;
 }

@@ -11,6 +11,8 @@
 
 //#define _DEBUG
 
+#define _IS_ON_VOLTAGE_TEST
+
 #define AUDIO_DISLIVELLO_BATTERIE 1
 
 #define AUDIO_TRACCIA_ERRATA 2
@@ -232,11 +234,21 @@ void loop()
 
 	//return;
 
+#ifdef _IS_ON_VOLTAGE_TEST
+	_demultiplexerPosition = 0;
+#endif // _IS_ON_VOLTAGE_TEST
+
 	set_multiplexer(_demultiplexerPosition);
 
 	char response[6] = {};
 
 	getDataFromSerialBuffer(&response[0]);
+
+#ifdef _IS_ON_VOLTAGE_TEST
+	Serial.print(F("#")); Serial.print(response); Serial.println(F("#"));
+	send_interrupt_to_all_attiny85();
+	return;
+#endif // _IS_ON_VOLTAGE_TEST
 
 #ifdef _DEBUG
 	Serial.print(F("#"));Serial.print(response);Serial.println(F("#"));

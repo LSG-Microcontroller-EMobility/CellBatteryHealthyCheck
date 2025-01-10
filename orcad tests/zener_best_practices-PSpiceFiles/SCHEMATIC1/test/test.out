@@ -1,5 +1,5 @@
-
-**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+**** 01/09/25 10:33:00 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
 
  ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
 
@@ -35,7 +35,7 @@
 V_V6         N44214 0  
 +SIN 12 2 0.5 0 0 0
 R_R17         N44376 N44272  470 TC=0,0 
-X_R18         N44376 N44448 0 POT PARAMS: SET=1 VALUE=100k
+X_R18         N44376 N44448 0 POT PARAMS: SET=0.8 VALUE=100k
 C_C2         0 N44376  0.1uF  TC=0,0 
 X_U5         N44214 N44244 Sw_tOpen PARAMS: tOpen=5 ttran=1u Rclosed=0.01
 +  Ropen=1Meg
@@ -47,7 +47,7 @@ D_D2         0 N444300 D1N4733
 **** RESUMING test.cir ****
 .END
 
-**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+**** 01/09/25 10:33:00 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
 
  ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
 
@@ -78,7 +78,7 @@ D_D2         0 N444300 D1N4733
         TBV1                  176.471000E-06 
 
 
-**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+**** 01/09/25 10:33:00 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
 
  ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
 
@@ -98,7 +98,7 @@ D_D2         0 N444300 D1N4733
         VOFF    0               0            
 
 
-**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+**** 01/09/25 10:33:00 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
 
  ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
 
@@ -115,7 +115,7 @@ D_D2         0 N444300 D1N4733
 
 (N44214)   12.0000 (N44244)   12.0000 (N44272)    1.9647 (N44376)    1.9555     
 
-(N44448)    1.9555 (X_U5.3)    1.0000 (X_U6.3)    1.0000 (N444300)    1.9555    
+(N44448)    1.5644 (X_U5.3)    1.0000 (X_U6.3)    1.0000 (N444300)    1.5644    
 
 
 
@@ -133,7 +133,7 @@ D_D2         0 N444300 D1N4733
 
           JOB CONCLUDED
 
-**** 01/08/25 02:10:46 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+**** 01/09/25 10:33:00 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
 
  ** Profile: "SCHEMATIC1-test"  [ C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices-psp
 
@@ -145,5 +145,5 @@ D_D2         0 N444300 D1N4733
 
 
 
-  Total job time (using Solver 1)   =         .08
+  Total job time (using Solver 1)   =         .09
 

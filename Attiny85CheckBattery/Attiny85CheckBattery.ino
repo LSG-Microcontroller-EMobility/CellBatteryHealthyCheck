@@ -15,7 +15,7 @@ const float _formula = (3.90f / 1024.00f);
 
 SoftwareSerial softwareSerial(99, 3, true);
 
-const uint8_t _reading_divider = 10;
+const uint8_t _reading_divider = 20;
 
 //#define IS_ON_TEST
 

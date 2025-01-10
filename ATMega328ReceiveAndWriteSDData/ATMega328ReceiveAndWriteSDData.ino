@@ -11,7 +11,7 @@
 
 //#define _DEBUG
 
-#define _IS_ON_VOLTAGE_TEST
+//#define _IS_ON_VOLTAGE_TEST
 
 #define AUDIO_DISLIVELLO_BATTERIE 1
 
@@ -109,8 +109,12 @@ void setup()
 
 	send_interrupt_to_all_attiny85();
 
+#ifndef _IS_ON_VOLTAGE_TEST
+
 	delay(5000);
 
+#endif // !_IS_ON_VOLTAGE_TEST
+	
 	pinMode(_pin_interrupt_to_attiny85, OUTPUT);
 
 	pinMode(_pin_selectorMultiPlex0, OUTPUT);
@@ -133,13 +137,22 @@ void setup()
 
 	Serial.begin(9600);
 
+#ifndef _IS_ON_VOLTAGE_TEST
+
 	initFileCard();
+
+#endif // !_IS_ON_VOLTAGE_TEST
+
+	
 
 #ifdef _DEBUG
 	Serial.println(F("restart"));
 #endif // _DEBUG
 	
+
+#ifndef _IS_ON_VOLTAGE_TEST
 	playMessageOnDPlayer(AUDIO_SISTEMA_INIZIALIZZATO);
+#endif // !_IS_ON_VOLTAGE_TEST
 
 }
 

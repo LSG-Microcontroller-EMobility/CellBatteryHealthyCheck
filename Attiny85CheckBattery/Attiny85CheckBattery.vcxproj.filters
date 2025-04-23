@@ -25,4 +25,9 @@
   <ItemGroup>
     <ClCompile Include="Attiny85CheckBattery.ino" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="fuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

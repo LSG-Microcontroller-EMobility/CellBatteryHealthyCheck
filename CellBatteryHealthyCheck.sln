@@ -30,6 +30,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "circuits", "circuits", "{D1
 		Circuit\Eagle\new_era_for_AI\NanoDemultiplexerAndSDcardNew3.brd = Circuit\Eagle\new_era_for_AI\NanoDemultiplexerAndSDcardNew3.brd
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "orcad-schematics", "orcad-schematics", "{7FB2EF40-0311-4B34-9BC4-51151BF32F10}"
+	ProjectSection(SolutionItems) = preProject
+		orcad tests\zener_best_practices.opj = orcad tests\zener_best_practices.opj
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

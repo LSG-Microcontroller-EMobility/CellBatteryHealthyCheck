@@ -1,0 +1,65 @@
+(ExpressProject "zener_best_practices"
+  (ProjectVersion "19981106")
+  (ProjectType "Analog or A/D Mixed Mode")
+  (Folder "Design Resources"
+    (Folder "Library")
+    (NoModify)
+    (BuildFileAddedOrDeleted "x")
+    (CompileFileAddedOrDeleted "x")
+    (File ".\zener_best_practices.dsn"
+      (Type "Schematic Design"))
+    (PSPICE_Regenerate_Netlist_Flag "FALSE"))
+  (Folder "Outputs"
+    (File ".\zener_best_practices-pspicefiles\schematic1\schematic1.net"
+      (Type "Report")))
+  (Folder "PSpice Resources"
+    (Folder "Simulation Profiles"
+      (ActiveProfile ".\zener_best_practices-pspicefiles\schematic1\test.sim")
+      (File.PSpice.{09528990-3187-11D2-BC7B-00A0C90CBF91}
+         ".\zener_best_practices-pspicefiles\schematic1\test.sim"
+        (DisplayName "SCHEMATIC1-test")
+        (Type "PSpice Profile")))
+    (Folder "Model Libraries"
+      (Sort User)
+      (File ".\zener_best_practices-pspicefiles\zener_best_practices.lib"
+        (Type "PSpiceLibrary")
+        (DisplayName
+           ".\zener_best_practices-pspicefiles\zener_best_practices.lib")))
+    (Folder "Stimulus Files")
+    (Folder "Include Files"))
+  (DefaultLibraryBrowseDirectory "library\PSpice")
+  (GlobalState
+    (FileView
+      (Path "Design Resources")
+      (Path "Design Resources"
+         "C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices.dsn")
+      (Path "Design Resources"
+         "C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices.dsn"
+         "SCHEMATIC1")
+      (Path "Outputs")
+      (Select "Design Resources"
+         "C:\Repos\LSG-Microcontroller-EMobility\CellBatteryHealthyCheck\orcad tests\zener_best_practices.dsn"
+         "SCHEMATIC1" "how to calibrate zenet voltage"))
+    (HierarchyView)
+    (Doc
+      (Type "COrCapturePMDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -8 -31 0 200 0 575"))
+      (Tab 0))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 2 3 -1 -1 -8 -31 52 1639 52 666")
+        (Scroll "460 557")
+        (Zoom "236")
+        (Occurrence "/"))
+      (Path
+         "C:\REPOS\LSG-MICROCONTROLLER-EMOBILITY\CELLBATTERYHEALTHYCHECK\ORCAD TESTS\ZENER_BEST_PRACTICES.DSN")
+      (Schematic "SCHEMATIC1")
+      (Page "how to calibrate zenet voltage")))
+  (PartMRUSelector
+    (Dbreak
+      (FullPartName "Dbreak.Normal")
+      (LibraryName
+         "C:\ORCAD\ORCAD_16.6_LITE\TOOLS\CAPTURE\LIBRARY\PSPICE\BREAKOUT.OLB")
+      (DeviceIndex "0"))))

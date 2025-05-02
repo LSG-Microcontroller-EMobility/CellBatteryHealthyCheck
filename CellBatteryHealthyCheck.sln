@@ -35,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "orcad-schematics", "orcad-s
 		orcad tests\zener_best_practices.opj = orcad tests\zener_best_practices.opj
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Neural_Network_Battery_Analyzer", "..\..\LSG-Microcontroller-AI\72Volts-Battery-Health-Check\Neural_Network_Battery_Analyzer\Lifepo4-Discharge-Model.vcxproj", "{FD06033E-A964-463D-A065-B08746662F03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -59,6 +61,14 @@ Global
 		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Release|x64.Build.0 = Release|x64
 		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Release|x86.ActiveCfg = Release|Win32
 		{477DB96A-5914-44A9-947A-DD3F20A9617F}.Release|x86.Build.0 = Release|Win32
+		{FD06033E-A964-463D-A065-B08746662F03}.Debug|x64.ActiveCfg = Debug|x64
+		{FD06033E-A964-463D-A065-B08746662F03}.Debug|x64.Build.0 = Debug|x64
+		{FD06033E-A964-463D-A065-B08746662F03}.Debug|x86.ActiveCfg = Debug|Win32
+		{FD06033E-A964-463D-A065-B08746662F03}.Debug|x86.Build.0 = Debug|Win32
+		{FD06033E-A964-463D-A065-B08746662F03}.Release|x64.ActiveCfg = Release|x64
+		{FD06033E-A964-463D-A065-B08746662F03}.Release|x64.Build.0 = Release|x64
+		{FD06033E-A964-463D-A065-B08746662F03}.Release|x86.ActiveCfg = Release|Win32
+		{FD06033E-A964-463D-A065-B08746662F03}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

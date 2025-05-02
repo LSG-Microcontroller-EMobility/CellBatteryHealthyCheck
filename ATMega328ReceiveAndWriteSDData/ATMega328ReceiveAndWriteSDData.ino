@@ -43,7 +43,7 @@ const uint8_t _pin_dfMiniPlayer_volume = A3;
 const uint8_t _pin_maxBatteryVoltageDifference = A4;
 uint8_t total_takeovers = 0;
 const uint8_t max_total_takeovers = 2;
-const uint8_t max_allow_percentage = 40;
+const uint8_t max_AI_error_percentage = 20;
 const uint8_t demultiplexer_position_start = 0;
 //-----------------------    ATTENZIONE PIN ASSEGNATI a scheda SD file excel !!!!!!!   -------------------------------
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
@@ -772,7 +772,7 @@ bool is_predict_batteries_values_OK() {
 #ifdef _SERIAL_AI
 	Serial.print(F("% :")); Serial.println(percentage);
 #endif // _SERIAL_AI
-	if (percentage < max_allow_percentage) { 
+	if (percentage < max_AI_error_percentage) { 
 		return true; }
 	else{ return false; }
 }

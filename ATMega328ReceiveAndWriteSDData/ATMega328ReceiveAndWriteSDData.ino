@@ -308,7 +308,7 @@ void loop() {
 	else {
 		_idMessage[0] = response[4];
 	}
-	char csv_battery_text_layout[10] = {};
+	char csv_battery_text_layout[12] = {};
 	prepare_battery_sd_card_string(csv_battery_text_layout, response);
 	if (is_battery_csv_text_layout_wrong(csv_battery_text_layout)) {
 		_demultiplexerPosition = demultiplexer_position_start;
@@ -324,12 +324,7 @@ void loop() {
 		check_activities();
 		set_multiplexer(6);
 		get_watts_and_ampere_from_serial_buffer();
-		char csv_watts_layout[15]{};
-		prepare_watts_sd_card_string(csv_watts_layout);
-		char csv_amps_layout[15]{};
-		prepare_ampere_sd_card_string(csv_amps_layout);
-		write_on_sd_card(csv_watts_layout);
-		write_on_sd_card(csv_amps_layout);
+		write_watts_and_ampere_on_sd_card();
 		_demultiplexerPosition = demultiplexer_position_start;
 		_idMessage[0] = 'x';
 		total_takeovers++;
@@ -590,15 +585,33 @@ void prepare_battery_sd_card_string(char* csvTextLayOut, char response[6]) {
 	strcat(csvTextLayOut, idBattery[_demultiplexerPosition]);
 	strcat(csvTextLayOut, ";");
 	strcat(csvTextLayOut, response);
-	//strcat(csvTextLayOut, ";");
-	//strcat(csvTextLayOut, deltaVoltage_to_string);
-	//strcat(csvTextLayOut, ";");
-	//strcat(csvTextLayOut, response);
-	//strcat(csvTextLayOut, _idMessage);
-	csvTextLayOut[20] = '\0';
+	strcat(csvTextLayOut, ";;");
 #ifdef _DEBUG
 	Serial.println(csvTextLayOut);
 #endif // _DEBUG
+}
+void write_watts_and_ampere_on_sd_card() {
+	File myFile;
+	if (_is_card_writing_disable)return;
+	myFile = SD.open(fileName, FILE_WRITE);
+	if (myFile) {
+		myFile.print(F(";;;"));
+		myFile.print(stored_watts, 2);
+		myFile.print(F(";"));
+		myFile.println(stored_ampere, 2);
+#ifdef _DEBUG
+		Serial.println(F("write.WA.SD"));
+#endif // _DEBUG
+		myFile.close();
+	}
+	else {
+#ifdef _DEBUG
+		Serial.println(F("err.SD"));
+#endif // _DEBUG
+		play_message_on_DPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
+		myFile.close();
+		while (true) {};
+	}
 }
 void prepare_watts_sd_card_string(char* csv_text_layout) {
 	char watts[7];

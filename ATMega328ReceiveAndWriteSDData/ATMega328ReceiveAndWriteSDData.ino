@@ -225,7 +225,7 @@ void init_file_card() {
 				exit = true;
 			}
 		}
-		char headersText[37] = "IDMessage;Battery;Value;Delta;Origin";
+		char headersText[37] = "IDMessage;Battery;Value;W/h;amps";
 
 		write_on_sd_card(headersText);
 
@@ -603,7 +603,8 @@ void prepare_battery_sd_card_string(char* csvTextLayOut, char response[6]) {
 void prepare_watts_sd_card_string(char* csv_text_layout) {
 	char watts[7];
 	dtostrf(stored_watts, 7, 2, watts);
-	strcpy(csv_text_layout, "W/h");
+	strcpy(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, watts);
@@ -615,7 +616,9 @@ void prepare_watts_sd_card_string(char* csv_text_layout) {
 void prepare_ampere_sd_card_string(char* csv_text_layout) {
 	char amps[5];
 	dtostrf(stored_ampere, 5, 2, amps);
-	strcpy(csv_text_layout, "amps");
+	strcpy(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
+	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, ";");
 	strcat(csv_text_layout, amps);

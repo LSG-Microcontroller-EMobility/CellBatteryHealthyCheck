@@ -1,5 +1,6 @@
 {
     "board": "arduino:avr:nano",
     "port": "/dev/ttyS0",
-    "configuration": "cpu=atmega328"
+    "configuration": "cpu=atmega328",
+    "sketch": "ATMega328ReceiveAndWriteSDData/ATMega328ReceiveAndWriteSDData.ino"
 }

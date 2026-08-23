@@ -45,6 +45,7 @@ uint8_t total_takeovers = 0;
 const uint8_t max_total_takeovers = 2;
 const uint8_t max_AI_error_percentage = 20;
 const uint8_t demultiplexer_position_start = 0;
+const uint8_t csv_battery_text_layout_capacity = 12;
 //-----------------------    ATTENZIONE PIN ASSEGNATI a scheda SD file excel !!!!!!!   -------------------------------
 // Pin 11 MOSI	Pin 12 MISO		Pin 13 SCK
 //const float deltaVoltage[_numberOfBattery] = { 0.00, 0.00 , 0.00, 0.00, 0.00 ,0.00 };
@@ -308,9 +309,9 @@ void loop() {
 	else {
 		_idMessage[0] = response[4];
 	}
-	char csv_battery_text_layout[12] = {};
+	char csv_battery_text_layout[csv_battery_text_layout_capacity] = {};
 	prepare_battery_sd_card_string(csv_battery_text_layout, response);
-	if (is_battery_csv_text_layout_wrong(csv_battery_text_layout)) {
+	if (is_battery_csv_text_layout_wrong(csv_battery_text_layout, csv_battery_text_layout_capacity)) {
 		_demultiplexerPosition = demultiplexer_position_start;
 		play_message_on_DPlayer(AUDIO_TRACCIA_ERRATA);
 		return;
@@ -348,18 +349,32 @@ void loop() {
 		_demultiplexerPosition++;
 	}
 }
-bool is_battery_csv_text_layout_wrong(char* csv_text_layout) {
-	bool return_value = false;
-	for (uint8_t i = 0; i < 20; i++) {
-		//Serial.println((char)csvTextLayOut[i]);
-		if (((char)csv_text_layout[i] < 46 || (char)csv_text_layout[i] > 59) && (char)csv_text_layout[2] != 'B') {
-#ifdef _DEBUG
-			Serial.println(F("text.problem"));
-#endif // _DEBUG
-			return_value = true;
+bool is_battery_csv_text_layout_wrong(const char* csv_text_layout, uint8_t csv_text_layout_capacity) {
+	if (csv_text_layout == NULL || csv_text_layout_capacity < 9) return true;
+	if (csv_text_layout[0] < '0' || csv_text_layout[0] > '9') return true;
+	if (csv_text_layout[1] != ';' || csv_text_layout[2] != 'B') return true;
+	if (csv_text_layout[3] < '0' || csv_text_layout[3] >= ('0' + _numberOfBattery)) return true;
+	if (csv_text_layout[4] != ';') return true;
+
+	uint8_t value_index = 5;
+	bool has_digit = false;
+	bool has_decimal_point = false;
+	while (value_index < csv_text_layout_capacity && csv_text_layout[value_index] != ';') {
+		const char current_character = csv_text_layout[value_index];
+		if (current_character >= '0' && current_character <= '9') {
+			has_digit = true;
 		}
+		else if (current_character == '.' && !has_decimal_point) {
+			has_decimal_point = true;
+		}
+		else {
+			return true;
+		}
+		value_index++;
 	}
-	return return_value;
+
+	if (!has_digit || value_index + 2 >= csv_text_layout_capacity) return true;
+	return csv_text_layout[value_index] != ';' || csv_text_layout[value_index + 1] != ';' || csv_text_layout[value_index + 2] != '\0';
 }
 void store_battery_value(char response[6]) {
 	float number = get_number(response);

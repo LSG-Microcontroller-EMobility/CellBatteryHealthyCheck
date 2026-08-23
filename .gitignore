@@ -277,3 +277,4 @@ Circuit/Eagle/CheckBatteryVoltage12VoltsWithReset_03.job
 Circuit/Eagle/CheckBatteryVoltage12VoltsWithReset_04.job
 ATMega328ReceiveAndWriteSDData/mp3/xx_chiamata_inoltrata1.mp3
 ATMega328ReceiveAndWriteSDData/mp3/xx_allontanarsi dal mezzo1.mp3
+.codex_build/

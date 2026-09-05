@@ -76,7 +76,7 @@ float y[numberOf_Y] = { 0.00f };
 float leaky_relu(float value) {
 	return (value > 0.0f) ? value : leaky_relu_alpha * value;
 }
-void forward() {
+void run_neural_network_forward_pass() {
 	int addr = 0;
 	float Zk = 0.00f;
 	float Zj = 0.00f;
@@ -120,7 +120,7 @@ float mean_squared_error(const float* arr1, const float* arr2, int size) {
 	// MSE = (1 / N) * Σ (diff^2)
 	return sum / size;
 }
-float mean_value(const float* data, int size) {
+float calculate_arithmetic_mean(const float* data, int size) {
 	float sum = 0.0f;
 	for (int i = 0; i < size; ++i) {
 		sum += data[i];
@@ -136,7 +136,7 @@ uint16_t calculate_normalized_rmse_percentage(float mse, float reference_mean) {
 }
 void setup() {
 	analogReference(EXTERNAL);
-	send_interrupt_to_all_attiny85();
+	trigger_all_attiny85_measurements();
 #if !_IS_ON_VOLTAGE_TEST
 	delay(5000);
 #endif // !_IS_ON_VOLTAGE_TEST
@@ -153,13 +153,13 @@ void setup() {
 #if _DEBUG_FOR_SERIAL
 	Serial.begin(9600);
 #endif // _DEBUG_FOR_SERIAL
-	init_file_card();
+	initialize_sd_card_data_file();
 #if _DEBUG_FOR_SERIAL
 	Serial.println(F("rest."));
 #endif // _DEBUG_FOR_SERIAL
-	play_message_on_DPlayer(AUDIO_SISTEMA_INIZIALIZZATO);
+	play_audio_message(AUDIO_SISTEMA_INIZIALIZZATO);
 }
-void init_file_card() {
+void initialize_sd_card_data_file() {
 	if (_is_card_writing_disable) return;
 	if (SD.begin()) {
 		bool exit = false;
@@ -179,10 +179,10 @@ void init_file_card() {
 #endif // _DEBUG_FOR_SERIAL
 				cicle++;
 				if (cicle == max_files_numbers) {
-					play_message_on_DPlayer(AUDIO_SCHEDA_MEM_PIENA);
-					play_message_on_DPlayer(AUDIO_DELETE_FILES_30_SEC);
+					play_audio_message(AUDIO_SCHEDA_MEM_PIENA);
+					play_audio_message(AUDIO_DELETE_FILES_30_SEC);
 					delay(20);
-					play_message_on_DPlayer(AUDIO_DELETE_FILES_10_SEC);
+					play_audio_message(AUDIO_DELETE_FILES_10_SEC);
 					delay(10);
 					for (uint8_t i = 0; i < max_files_numbers; i++) {
 						strcpy(fileName, "batt");
@@ -191,7 +191,7 @@ void init_file_card() {
 						fileName[9] = '\0';
 						SD.remove(fileName);
 					}
-					play_message_on_DPlayer(AUDIO_ALL_FILES_DELETED);
+					play_audio_message(AUDIO_ALL_FILES_DELETED);
 					cicle = 0;
 				}
 			}
@@ -201,7 +201,7 @@ void init_file_card() {
 		}
 		char headersText[37] = "IDMessage;Battery;Value;W/h;amps";
 
-		write_on_sd_card(headersText);
+		append_line_to_sd_card(headersText);
 
 	}
 	else {
@@ -209,20 +209,20 @@ void init_file_card() {
 #if _DEBUG_FOR_SERIAL
 		Serial.println(F("SD failed"));
 #endif // _DEBUG_FOR_SERIAL
-		play_message_on_DPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
+		play_audio_message(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		while (true) {};
 	}
 }
 void loop() {
 #if _DEBUG_FOR_SERIAL
-	Serial.print(F("mem :")); Serial.println(freeMemory());
+	Serial.print(F("mem :")); Serial.println(get_free_sram_bytes());
 #endif // _DEBUG_FOR_SERIAL
 	//#if _IS_ON_AI_TEST
-	//	is_predict_batteries_values_OK();
+	//	are_predicted_battery_values_acceptable();
 	//	delay(2000);
 	//	return;
 	//#endif // _IS_ON_AI_TEST
-		/*play_message_on_DPlayer(AUDIO_INIZIO_STRESS_TEST);
+		/*play_audio_message(AUDIO_INIZIO_STRESS_TEST);
 
 		Serial.println("inizio del test");
 
@@ -235,20 +235,20 @@ void loop() {
 		////percentage test
 		//delay(500);
 		//return;
-		//send_interrupt_to_all_attiny85();
+		//trigger_all_attiny85_measurements();
 		//delay(1000);
 		//return;
 #if _IS_ON_VOLTAGE_TEST
 	_demultiplexerPosition = 0;
 #endif // _IS_ON_VOLTAGE_TEST
-	set_multiplexer(_demultiplexerPosition);
+	select_multiplexer_channel(_demultiplexerPosition);
 	char response[6] = {};
-	get_batteries_data_from_serial_buffer(&response[0]);
+	read_battery_response_from_serial(&response[0]);
 #if _IS_ON_VOLTAGE_TEST
 #if _DEBUG_FOR_SERIAL
 	Serial.print(F("#")); Serial.print(response); Serial.println(F("#"));
 #endif // _DEBUG_FOR_SERIAL
-	send_interrupt_to_all_attiny85();
+	trigger_all_attiny85_measurements();
 	return;
 #endif // _IS_ON_VOLTAGE_TEST
 #if _DEBUG_FOR_SERIAL
@@ -256,16 +256,16 @@ void loop() {
 #endif // _DEBUG_FOR_SERIAL
 	uint8_t max_attempts = 0;
 	//Attempts if number transformation fails.
-	while ((!is_number(response) || response[0] == '.') && max_attempts < 5) {
-		get_batteries_data_from_serial_buffer(&response[0]);
+	while ((!is_valid_battery_voltage_response(response) || response[0] == '.') && max_attempts < 5) {
+		read_battery_response_from_serial(&response[0]);
 #if _DEBUG_FOR_SERIAL
 		Serial.println(F("n.w"));
 #endif // _DEBUG_FOR_SERIAL
 		max_attempts++;
 	}
 	//if number transformation was failed
-	if (!is_number(response)) {
-		play_message_on_DPlayer(AUDIO_NUMERO_ERRATO);
+	if (!is_valid_battery_voltage_response(response)) {
+		play_audio_message(AUDIO_NUMERO_ERRATO);
 #if _DEBUG_FOR_SERIAL
 		Serial.println(F("not.n"));
 #endif // _DEBUG_FOR_SERIAL
@@ -274,7 +274,7 @@ void loop() {
 	}
 	if (_idMessage[0] != 'x') {
 		if (_idMessage[0] != response[4]) {
-			play_message_on_DPlayer(AUDIO_ID_MESSAGE_WRONG);
+			play_audio_message(AUDIO_ID_MESSAGE_WRONG);
 #if _DEBUG_FOR_SERIAL
 			Serial.println(F("id.pr"));
 #endif // _DEBUG_FOR_SERIAL
@@ -287,22 +287,22 @@ void loop() {
 		_idMessage[0] = response[4];
 	}
 	char csv_battery_text_layout[csv_battery_text_layout_capacity] = {};
-	prepare_battery_sd_card_string(csv_battery_text_layout, response);
-	if (is_battery_csv_text_layout_wrong(csv_battery_text_layout, csv_battery_text_layout_capacity)) {
+	build_battery_csv_record(csv_battery_text_layout, response);
+	if (is_battery_csv_record_invalid(csv_battery_text_layout, csv_battery_text_layout_capacity)) {
 		_demultiplexerPosition = demultiplexer_position_start;
-		play_message_on_DPlayer(AUDIO_TRACCIA_ERRATA);
+		play_audio_message(AUDIO_TRACCIA_ERRATA);
 		return;
 	}
-	store_battery_value(response);
-	write_on_sd_card(csv_battery_text_layout);
+	store_current_battery_voltage(response);
+	append_line_to_sd_card(csv_battery_text_layout);
 	if (_demultiplexerPosition == (_numberOfBattery - 1)) {
 #if _DEBUG_FOR_SERIAL
-		print_stored_battery_values_array();
+		print_stored_battery_voltages();
 #endif // _DEBUG_FOR_SERIAL
-		check_activities();
-		set_multiplexer(6);
-		get_watts_and_ampere_from_serial_buffer();
-		write_watts_and_ampere_on_sd_card();
+		check_battery_balance();
+		select_multiplexer_channel(6);
+		read_power_measurements_from_serial();
+		write_power_measurements_to_sd_card();
 		_demultiplexerPosition = demultiplexer_position_start;
 		_idMessage[0] = 'x';
 		total_takeovers++;
@@ -310,23 +310,23 @@ void loop() {
 			total_takeovers = 0;
 			//for simulation
 			//stored_ampere = 39.00;
-			if (!is_predict_batteries_values_OK() && (stored_ampere > 15.00f)) {
-				play_message_on_DPlayer(AUDIO_SISTEMA_INSTABILE);
+			if (!are_predicted_battery_values_acceptable() && (stored_ampere > 15.00f)) {
+				play_audio_message(AUDIO_SISTEMA_INSTABILE);
 			}
 			else {
-				play_message_on_DPlayer(AUDIO_AQUISIZIONE_DATI);
+				play_audio_message(AUDIO_AQUISIZIONE_DATI);
 			}
 		}
 		for (uint8_t i = 0; i < _numberOfBattery; i++) {
 			storedBatteryValues[i] = 0.00;
 		}
-		send_interrupt_to_all_attiny85();
+		trigger_all_attiny85_measurements();
 	}
 	else {
 		_demultiplexerPosition++;
 	}
 }
-bool is_battery_csv_text_layout_wrong(const char* csv_text_layout, uint8_t csv_text_layout_capacity) {
+bool is_battery_csv_record_invalid(const char* csv_text_layout, uint8_t csv_text_layout_capacity) {
 	if (csv_text_layout == NULL || csv_text_layout_capacity < 9) return true;
 	if (csv_text_layout[0] < '0' || csv_text_layout[0] > '9') return true;
 	if (csv_text_layout[1] != ';' || csv_text_layout[2] != 'B') return true;
@@ -353,36 +353,36 @@ bool is_battery_csv_text_layout_wrong(const char* csv_text_layout, uint8_t csv_t
 	if (!has_digit || value_index + 2 >= csv_text_layout_capacity) return true;
 	return csv_text_layout[value_index] != ';' || csv_text_layout[value_index + 1] != ';' || csv_text_layout[value_index + 2] != '\0';
 }
-void store_battery_value(char response[6]) {
-	float number = get_number(response);
+void store_current_battery_voltage(char response[6]) {
+	float number = parse_battery_voltage(response);
 	number = number; /*+deltaVoltage[_demultiplexerPosition];*/
 	storedBatteryValues[_demultiplexerPosition] = number;
 }
 #if _DEBUG_FOR_SERIAL
-void print_stored_battery_values_array() {
+void print_stored_battery_voltages() {
 	for (uint8_t i = 0; i < _numberOfBattery; i++) {
 		Serial.println(storedBatteryValues[i]);
 	}
 }
 #endif // _DEBUG_FOR_SERIAL
-void check_activities() {
-	check_batteries_max_level(storedBatteryValues[0]);
-	check_batteries_min_level(storedBatteryValues[0]);
+void check_battery_balance() {
+	update_max_battery_voltage(storedBatteryValues[0]);
+	update_min_battery_voltage(storedBatteryValues[0]);
 #if _DEBUG_FOR_SERIAL
 	Serial.print(F("Mx.V:")); Serial.println(batteryMaxLevel);
 #endif // _DEBUG_FOR_SERIAL
 #if _DEBUG_FOR_SERIAL
 	Serial.print(F("Min.V:")); Serial.println(batteryMinLevel);
 #endif // _DEBUG_FOR_SERIAL
-	if (there_are_unbalanced_batteries()) {
+	if (are_batteries_unbalanced()) {
 #if _DEBUG_FOR_SERIAL
 		Serial.println(F("Dis.bat."));
 #endif // _DEBUG_FOR_SERIAL
-		play_message_on_DPlayer(AUDIO_DISLIVELLO_BATTERIE);
+		play_audio_message(AUDIO_DISLIVELLO_BATTERIE);
 		//buzzer_sensor_activity(5, 2500, 80, 200);
 	}
 }
-bool is_number(const char* s) {
+bool is_valid_battery_voltage_response(const char* s) {
 	if (s == NULL)
 		return false;               // 1) puntatore nullo
 
@@ -425,7 +425,7 @@ bool is_number(const char* s) {
 
 	return true;
 }
-bool there_are_unbalanced_batteries() {
+bool are_batteries_unbalanced() {
 	//https://www.desmos.com/calculator/wsfbcw9ffn
 	//See math site for percentage calculate.
 	//float maxPercentageForAlarm = analogRead(_pin_maxBatteryVoltageDifference) / (1024.00 / 15.00 /*<--max percentage*/);
@@ -445,10 +445,10 @@ bool there_are_unbalanced_batteries() {
 	}
 	return false;
 }
-float get_number(char* response) {
+float parse_battery_voltage(char* response) {
 	return atof(response);
 }
-void get_batteries_data_from_serial_buffer(char* response) {
+void read_battery_response_from_serial(char* response) {
 	SoftwareSerial softwareSerial(_pin_rx, 99);
 	softwareSerial.begin(600);
 	while (!softwareSerial);
@@ -470,7 +470,7 @@ void get_batteries_data_from_serial_buffer(char* response) {
 	}*/
 	response[5] = '\0';
 }
-void get_watts_and_ampere_from_serial_buffer() {
+void read_power_measurements_from_serial() {
 	stored_ampere = 0.00f;
 	stored_watts = 0.00f;
 	SoftwareSerial softwareSerial(_pin_rx, 99);
@@ -497,7 +497,7 @@ void get_watts_and_ampere_from_serial_buffer() {
 	Serial.print(F("Watts/h :")); Serial.println(stored_watts);
 #endif // _DEBUG_FOR_SERIAL
 }
-void set_multiplexer(int channel) {
+void select_multiplexer_channel(int channel) {
 	uint8_t controlPin[4] = { _pin_selectorMultiPlex0, _pin_selectorMultiPlex1, _pin_selectorMultiPlex2, _pin_selectorMultiPlex3 };
 	const uint8_t muxChannel[7][4] = {
 		{0, 0, 0, 0}, // channel 0
@@ -522,7 +522,7 @@ void set_multiplexer(int channel) {
 		digitalWrite(controlPin[i], muxChannel[channel][i]);
 	}
 }
-void prepare_battery_sd_card_string(char* csvTextLayOut, char response[6]) {
+void build_battery_csv_record(char* csvTextLayOut, char response[6]) {
 	const char* idBattery[_numberOfBattery] = { "B0", "B1", "B2", "B3", "B4", "B5" };
 	//const char* idBattery[_numberOfBattery] = { "B0", "B1", "B2" };
 	//const char* idBattery[_numberOfBattery] = { "B0", "B1", "B2","B3"};
@@ -539,7 +539,7 @@ void prepare_battery_sd_card_string(char* csvTextLayOut, char response[6]) {
 	Serial.println(csvTextLayOut);
 #endif // _DEBUG_FOR_SERIAL
 }
-void write_watts_and_ampere_on_sd_card() {
+void write_power_measurements_to_sd_card() {
 	File myFile;
 	if (_is_card_writing_disable)return;
 	myFile = SD.open(fileName, FILE_WRITE);
@@ -559,12 +559,12 @@ void write_watts_and_ampere_on_sd_card() {
 #if _DEBUG_FOR_SERIAL
 		Serial.println(F("err.SD"));
 #endif // _DEBUG_FOR_SERIAL
-		play_message_on_DPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
+		play_audio_message(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		myFile.close();
 		while (true) {};
 	}
 }
-void write_on_sd_card(char* message) {
+void append_line_to_sd_card(char* message) {
 	File myFile;
 	if (_is_card_writing_disable)return;
 	// Create/Open file
@@ -584,7 +584,7 @@ void write_on_sd_card(char* message) {
 #if _DEBUG_FOR_SERIAL
 		Serial.println(F("err.SD"));
 #endif // _DEBUG_FOR_SERIAL
-		play_message_on_DPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
+		play_audio_message(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		myFile.close();
 		while (true) {};
 	}
@@ -602,7 +602,7 @@ void write_on_sd_card(char* message) {
 	//	Serial.println("error opening file batteryValues.csv");
 	// }
 }
-void send_interrupt_to_all_attiny85() {
+void trigger_all_attiny85_measurements() {
 	digitalWrite(_pin_interrupt_to_attiny85, HIGH);
 	delay(200);
 	digitalWrite(_pin_interrupt_to_attiny85, LOW);
@@ -610,7 +610,7 @@ void send_interrupt_to_all_attiny85() {
 	Serial.println(F("-Int-"));
 #endif // _DEBUG_FOR_SERIAL
 }
-void check_batteries_max_level(float value) {
+void update_max_battery_voltage(float value) {
 	ii = 0;
 	while (ii < _numberOfBattery) {
 		// Serial.println(ii);
@@ -627,11 +627,11 @@ void check_batteries_max_level(float value) {
 #if _DEBUG_FOR_SERIAL
 			// Serial.print(F("mando ")); Serial.print(storedBatteryValues[ii]); Serial.println(F(" in funzione"));
 #endif // _DEBUG_FOR_SERIAL
-			check_batteries_max_level(storedBatteryValues[ii]);
+			update_max_battery_voltage(storedBatteryValues[ii]);
 		}
 	}
 }
-void check_batteries_min_level(float value) {
+void update_min_battery_voltage(float value) {
 	ii = 0;
 	while (ii < _numberOfBattery) {
 		if (value <= storedBatteryValues[ii]) {
@@ -647,11 +647,11 @@ void check_batteries_min_level(float value) {
 #if _DEBUG_FOR_SERIAL
 			// Serial.print(F("mando ")); Serial.print(storedBatteryValues[ii]); Serial.println(F(" in funzione"));
 #endif // _DEBUG_FOR_SERIAL
-			check_batteries_min_level(storedBatteryValues[ii]);
+			update_min_battery_voltage(storedBatteryValues[ii]);
 		}
 	}
 }
-void play_message_on_DPlayer(uint8_t messageCode) {
+void play_audio_message(uint8_t messageCode) {
 	if (_is_DPlayer_disable) return;
 	DFRobotDFPlayerMini myDFPlayer;
 	SoftwareSerial mySoftwareSerial(_pin_dfMiniPlayer_rx, _pin_dfMiniPlayer_tx); // rx, tx
@@ -676,7 +676,7 @@ void play_message_on_DPlayer(uint8_t messageCode) {
 	myDFPlayer.play(messageCode);  //Play next mp3 every 3 second.
 	delay(5000);
 }
-bool is_predict_batteries_values_OK() {
+bool are_predicted_battery_values_acceptable() {
 #if _IS_ON_AI_TEST
 	x[0] = 39.36f;
 	x[1] = 86.27f;
@@ -692,7 +692,7 @@ bool is_predict_batteries_values_OK() {
 #endif // _IS_ON_AI_TEST
 	x[0] = log(x[0] + 1.0f) / 10.0f;
 	x[1] = log(x[1] + 1.0f) / 10.0f;
-	forward();
+	run_neural_network_forward_pass();
 	for (int i = 0; i < 6; i++) {
 		y[i] = y[i] * 10.00f;
 #if _DEBUG_FOR_SERIAL
@@ -701,7 +701,7 @@ bool is_predict_batteries_values_OK() {
 #endif // _DEBUG_FOR_SERIAL
 	}
 	float mse = mean_squared_error(storedBatteryValues, y, numberOf_Y);
-	float observed_mean = mean_value(storedBatteryValues, numberOf_Y);
+	float observed_mean = calculate_arithmetic_mean(storedBatteryValues, numberOf_Y);
 #if _DEBUG_FOR_SERIAL
 	Serial.print(F("mse: ")); Serial.println(mse);
 	Serial.print(F("observed_mean: ")); Serial.println(observed_mean);
@@ -716,7 +716,7 @@ bool is_predict_batteries_values_OK() {
 	else { return false; }
 }
 #if _DEBUG_FOR_SERIAL
-int freeMemory() {
+int get_free_sram_bytes() {
 	extern int __heap_start, * __brkval;
 	int v;
 	return (int)&v - (__brkval ? (int)__brkval : (int)&__heap_start);

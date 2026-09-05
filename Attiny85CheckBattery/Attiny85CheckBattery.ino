@@ -16,9 +16,9 @@ const uint8_t _reading_divider = 20;
 void setup() {
 	analogReference(EXTERNAL);
 	softwareSerial.begin(600);
-	setupADC();
+	configure_adc();
 	pinMode(2, INPUT_PULLUP);
-	attachInterrupt(0, activateSystemOnAlarmInterrupt, CHANGE);
+	attachInterrupt(0, update_battery_measurement_on_interrupt, CHANGE);
 	for (int i = 0; i < _reading_divider; i++) {
 		measure += (_formula * analogRead(A2));
 	}
@@ -38,12 +38,12 @@ void loop() {
 	//importante perchè altrimenti non intercetta interrupt
 	delay(100);
 }
-void setupADC() {
+void configure_adc() {
 	ADMUX = (1 << REFS0);              // Usa AVcc come riferimento
 	ADCSRA = (1 << ADEN)               // Abilita ADC
 		| (1 << ADPS2) | (1 << ADPS1); // Imposta prescaler a 64
 }
-void activateSystemOnAlarmInterrupt(){
+void update_battery_measurement_on_interrupt() {
 	measure = 00.00f;
 	for (int i = 0; i < _reading_divider; i++) {
 		measure += (_formula * analogRead(A2));

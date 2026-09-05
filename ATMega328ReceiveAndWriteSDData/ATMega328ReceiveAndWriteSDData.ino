@@ -592,6 +592,7 @@ void write_watts_and_ampere_on_sd_card() {
 		myFile.close();
 		while (true) {};
 	}
+}
 void write_on_sd_card(char* message) {
 	File myFile;
 	if (_is_card_writing_disable)return;

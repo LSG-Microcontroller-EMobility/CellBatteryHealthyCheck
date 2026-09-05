@@ -10,7 +10,9 @@ const uint8_t idMessageCounter = 0;
 const float _formula = (3.90f / 1024.00f);
 SoftwareSerial softwareSerial(99, 3, true);
 const uint8_t _reading_divider = 20;
-//#define IS_ON_TEST
+#ifndef IS_ON_TEST
+#define IS_ON_TEST 0
+#endif
 void setup() {
 	analogReference(EXTERNAL);
 	softwareSerial.begin(600);
@@ -23,7 +25,7 @@ void setup() {
 	measure /= _reading_divider;
 }
 void loop() {
-#ifdef IS_ON_TEST
+#if IS_ON_TEST
 	measure = 0.00f;
 	for (int i = 0; i < _reading_divider; i++) {
 		measure += (_formula * analogRead(A2));
@@ -33,7 +35,7 @@ void loop() {
 	softwareSerial.print(measure);
 	softwareSerial.print(idMessageCounter);
 	softwareSerial.print('*');
-	//importante perchè altrimenti non intercetta interrupt
+	//importante perchÃ¨ altrimenti non intercetta interrupt
 	delay(100);
 }
 void setupADC() {

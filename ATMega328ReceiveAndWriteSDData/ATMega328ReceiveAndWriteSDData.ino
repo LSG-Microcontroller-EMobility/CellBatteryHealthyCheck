@@ -12,10 +12,15 @@
 #include <stdlib.h>   // strtof
 #include <stdbool.h>  // bool
 #include <stddef.h>   // NULL
-//#define _DEBUG
-//#define _IS_ON_VOLTAGE_TEST
-//#define _IS_ON_AI_TEST
-//#define _SERIAL_AI
+#ifndef _DEBUG_FOR_SERIAL
+#define _DEBUG_FOR_SERIAL 0
+#endif
+#ifndef _IS_ON_VOLTAGE_TEST
+#define _IS_ON_VOLTAGE_TEST 0
+#endif
+#ifndef _IS_ON_AI_TEST
+#define _IS_ON_AI_TEST 0
+#endif
 #define AUDIO_DISLIVELLO_BATTERIE 1
 #define AUDIO_TRACCIA_ERRATA 2
 #define AUDIO_NUMERO_ERRATO 3
@@ -105,7 +110,7 @@ void forward() {
 		addr += sizeof(float);
 	}
 }
-float meanSquaredError(const float* arr1, const float* arr2, int size) {
+float mean_squared_error(const float* arr1, const float* arr2, int size) {
 	float sum = 0.0f;
 	for (int i = 0; i < size; ++i) {
 		float diff = arr1[i] - arr2[i];
@@ -122,7 +127,7 @@ float mean_value(const float* data, int size) {
 	}
 	return sum / size;
 }
-uint16_t calculateErrorPercentage(float mse, float reference_mean) {
+uint16_t calculate_normalized_rmse_percentage(float mse, float reference_mean) {
 	// Calcola il Root Mean Squared Error (RMSE)
 	float rms = sqrtf(mse);
 	// Calcola la percentuale (tronca i decimali):
@@ -132,7 +137,7 @@ uint16_t calculateErrorPercentage(float mse, float reference_mean) {
 void setup() {
 	analogReference(EXTERNAL);
 	send_interrupt_to_all_attiny85();
-#ifndef _IS_ON_VOLTAGE_TEST
+#if !_IS_ON_VOLTAGE_TEST
 	delay(5000);
 #endif // !_IS_ON_VOLTAGE_TEST
 	pinMode(_pin_interrupt_to_attiny85, OUTPUT);
@@ -145,11 +150,13 @@ void setup() {
 	digitalWrite(_pin_selectorMultiPlex2, LOW);
 	digitalWrite(_pin_selectorMultiPlex3, LOW);
 	digitalWrite(_pin_interrupt_to_attiny85, LOW);
+#if _DEBUG_FOR_SERIAL
 	Serial.begin(9600);
+#endif // _DEBUG_FOR_SERIAL
 	init_file_card();
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 	Serial.println(F("rest."));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 	play_message_on_DPlayer(AUDIO_SISTEMA_INIZIALIZZATO);
 }
 void init_file_card() {
@@ -163,13 +170,13 @@ void init_file_card() {
 			fileName[4] = (char)(cicle + 48);
 			strcat(fileName, ".csv");
 			fileName[9] = '\0';
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 			Serial.println(fileName);
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 			if (SD.exists(fileName)) {
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 				Serial.println(F("F.Exist"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 				cicle++;
 				if (cicle == max_files_numbers) {
 					play_message_on_DPlayer(AUDIO_SCHEDA_MEM_PIENA);
@@ -199,74 +206,78 @@ void init_file_card() {
 	}
 	else {
 		//buzzer_sensor_activity(5, 400, 1000, 500);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("SD failed"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 		play_message_on_DPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		while (true) {};
 	}
 }
 void loop() {
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("mem :")); Serial.println(freeMemory());
-//#ifdef _IS_ON_AI_TEST
-//	is_predict_batteries_values_OK();
-//	delay(2000);
-//	return;
-//#endif // _IS_ON_AI_TEST
-	/*play_message_on_DPlayer(AUDIO_INIZIO_STRESS_TEST);
+#endif // _DEBUG_FOR_SERIAL
+	//#if _IS_ON_AI_TEST
+	//	is_predict_batteries_values_OK();
+	//	delay(2000);
+	//	return;
+	//#endif // _IS_ON_AI_TEST
+		/*play_message_on_DPlayer(AUDIO_INIZIO_STRESS_TEST);
 
-	Serial.println("inizio del test");
+		Serial.println("inizio del test");
 
-	return;*/
-	////volume test
-	//Serial.print("volume : "); Serial.println(analogRead(A3));
-	////volume test
-	////percentage test
-	//Serial.print("percentage : "); Serial.println(analogRead(A4));
-	////percentage test
-	//delay(500);
-	//return;
-	//send_interrupt_to_all_attiny85();
-	//delay(1000);
-	//return;
-#ifdef _IS_ON_VOLTAGE_TEST
+		return;*/
+		////volume test
+		//Serial.print("volume : "); Serial.println(analogRead(A3));
+		////volume test
+		////percentage test
+		//Serial.print("percentage : "); Serial.println(analogRead(A4));
+		////percentage test
+		//delay(500);
+		//return;
+		//send_interrupt_to_all_attiny85();
+		//delay(1000);
+		//return;
+#if _IS_ON_VOLTAGE_TEST
 	_demultiplexerPosition = 0;
 #endif // _IS_ON_VOLTAGE_TEST
 	set_multiplexer(_demultiplexerPosition);
 	char response[6] = {};
 	get_batteries_data_from_serial_buffer(&response[0]);
-#ifdef _IS_ON_VOLTAGE_TEST
+#if _IS_ON_VOLTAGE_TEST
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("#")); Serial.print(response); Serial.println(F("#"));
+#endif // _DEBUG_FOR_SERIAL
 	send_interrupt_to_all_attiny85();
 	return;
 #endif // _IS_ON_VOLTAGE_TEST
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("#")); Serial.print(response); Serial.println(F("#"));
-#endif
+#endif // _DEBUG_FOR_SERIAL
 	uint8_t max_attempts = 0;
 	//Attempts if number transformation fails.
 	while ((!is_number(response) || response[0] == '.') && max_attempts < 5) {
 		get_batteries_data_from_serial_buffer(&response[0]);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("n.w"));
-#endif
+#endif // _DEBUG_FOR_SERIAL
 		max_attempts++;
 	}
 	//if number transformation was failed
 	if (!is_number(response)) {
 		play_message_on_DPlayer(AUDIO_NUMERO_ERRATO);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("not.n"));
-#endif
+#endif // _DEBUG_FOR_SERIAL
 		_demultiplexerPosition = demultiplexer_position_start;
 		return;
 	}
 	if (_idMessage[0] != 'x') {
 		if (_idMessage[0] != response[4]) {
 			play_message_on_DPlayer(AUDIO_ID_MESSAGE_WRONG);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 			Serial.println(F("id.pr"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 			_demultiplexerPosition = demultiplexer_position_start;
 			_idMessage[0] = 'x';
 			return;
@@ -285,9 +296,9 @@ void loop() {
 	store_battery_value(response);
 	write_on_sd_card(csv_battery_text_layout);
 	if (_demultiplexerPosition == (_numberOfBattery - 1)) {
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		print_stored_battery_values_array();
-#endif 
+#endif // _DEBUG_FOR_SERIAL
 		check_activities();
 		set_multiplexer(6);
 		get_watts_and_ampere_from_serial_buffer();
@@ -299,7 +310,7 @@ void loop() {
 			total_takeovers = 0;
 			//for simulation
 			//stored_ampere = 39.00;
-			if (!is_predict_batteries_values_OK() && (stored_ampere > 15.00f)){
+			if (!is_predict_batteries_values_OK() && (stored_ampere > 15.00f)) {
 				play_message_on_DPlayer(AUDIO_SISTEMA_INSTABILE);
 			}
 			else {
@@ -347,24 +358,26 @@ void store_battery_value(char response[6]) {
 	number = number; /*+deltaVoltage[_demultiplexerPosition];*/
 	storedBatteryValues[_demultiplexerPosition] = number;
 }
+#if _DEBUG_FOR_SERIAL
 void print_stored_battery_values_array() {
 	for (uint8_t i = 0; i < _numberOfBattery; i++) {
 		Serial.println(storedBatteryValues[i]);
 	}
 }
+#endif // _DEBUG_FOR_SERIAL
 void check_activities() {
 	check_batteries_max_level(storedBatteryValues[0]);
 	check_batteries_min_level(storedBatteryValues[0]);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("Mx.V:")); Serial.println(batteryMaxLevel);
-#endif // _DEBUG
-#ifdef _DEBUG
+#endif // _DEBUG_FOR_SERIAL
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("Min.V:")); Serial.println(batteryMinLevel);
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 	if (there_are_unbalanced_batteries()) {
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("Dis.bat."));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 		play_message_on_DPlayer(AUDIO_DISLIVELLO_BATTERIE);
 		//buzzer_sensor_activity(5, 2500, 80, 200);
 	}
@@ -412,11 +425,6 @@ bool is_number(const char* s) {
 
 	return true;
 }
-//bool is_number_old(const String& s) {
-//	char* end = nullptr;
-//	float val = strtod(s.c_str(), &end);
-//	return end != s.c_str() && *end == '\0' && val < 4.5 && val > 0.00;
-//}
 bool there_are_unbalanced_batteries() {
 	//https://www.desmos.com/calculator/wsfbcw9ffn
 	//See math site for percentage calculate.
@@ -428,10 +436,10 @@ bool there_are_unbalanced_batteries() {
 	x = x / _numberOfBattery;
 	float maxPercentageForAlarm = -(8.60f * x) + 32.15f;
 	float percentageValue = 100 - ((batteryMinLevel / batteryMaxLevel) * 100);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("% value : ")); Serial.print(percentageValue); Serial.println(F("%"));
 	Serial.print(F("% max : ")); Serial.print(maxPercentageForAlarm); Serial.println(F("%"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 	if (percentageValue > maxPercentageForAlarm) {
 		return true;
 	}
@@ -440,20 +448,6 @@ bool there_are_unbalanced_batteries() {
 float get_number(char* response) {
 	return atof(response);
 }
-//void get_batteries_data_from_serial_buffer_old(char* response) {
-//	SoftwareSerial softwareSerial(_pin_rx, 99);
-//	softwareSerial.begin(600);
-//	while (!softwareSerial);
-//	delay(500);
-//	char trash[20]{};
-//	if (softwareSerial.available() > 0) {
-//		softwareSerial.readBytesUntil('*', trash, 20);
-//	}
-//	if (softwareSerial.available() > 0) {
-//		softwareSerial.readBytes(response, 6);
-//	}
-//	response[5] = '\0';
-//}
 void get_batteries_data_from_serial_buffer(char* response) {
 	SoftwareSerial softwareSerial(_pin_rx, 99);
 	softwareSerial.begin(600);
@@ -462,7 +456,7 @@ void get_batteries_data_from_serial_buffer(char* response) {
 	//char trash[20]{};
 	char t;
 	if (softwareSerial.available() > 0) {
-		while (true){
+		while (true) {
 			softwareSerial.readBytes(&t, 1);
 			if (t == '*') {
 				softwareSerial.readBytes(response, 6);
@@ -498,34 +492,11 @@ void get_watts_and_ampere_from_serial_buffer() {
 	if (softwareSerial.available() > 0) {
 		stored_watts = softwareSerial.parseFloat();
 	}
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("Ampere :")); Serial.println(stored_ampere);
 	Serial.print(F("Watts/h :")); Serial.println(stored_watts);
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 }
-//void get_watts_and_ampere_from_serial_buffer_old() {
-//	stored_ampere = 0.00f;
-//	stored_watts = 0.00f;
-//	SoftwareSerial softwareSerial(_pin_rx, 99);
-//	softwareSerial.begin(600);
-//	while (!softwareSerial);
-//	delay(800);
-//	char trash[20]{};
-//	if (softwareSerial.available() > 0) {
-//		softwareSerial.readBytesUntil('*', trash, 19);
-//	}
-//	if (softwareSerial.available() > 0) {
-//		stored_ampere = softwareSerial.parseFloat();
-//	}
-//	if (softwareSerial.available() > 0) {
-//		stored_watts = softwareSerial.parseFloat();
-//	}
-//#ifdef _DEBUG
-//	Serial.print(F("Ampere :")); Serial.println(stored_ampere);
-//	Serial.print(F("Watts/h :")); Serial.println(stored_watts);
-//#endif // _DEBUG
-//}
-//Serial.print("setMultiplexer channel : "); Serial.println(channel);
 void set_multiplexer(int channel) {
 	uint8_t controlPin[4] = { _pin_selectorMultiPlex0, _pin_selectorMultiPlex1, _pin_selectorMultiPlex2, _pin_selectorMultiPlex3 };
 	const uint8_t muxChannel[7][4] = {
@@ -564,9 +535,9 @@ void prepare_battery_sd_card_string(char* csvTextLayOut, char response[6]) {
 	strcat(csvTextLayOut, ";");
 	strcat(csvTextLayOut, response);
 	strcat(csvTextLayOut, ";;");
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 	Serial.println(csvTextLayOut);
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 }
 void write_watts_and_ampere_on_sd_card() {
 	File myFile;
@@ -579,15 +550,15 @@ void write_watts_and_ampere_on_sd_card() {
 		myFile.print(F("amps;;"));
 		myFile.print(stored_ampere, 2);
 		myFile.println(F(";;"));
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("write.WA.SD"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 		myFile.close();
 	}
 	else {
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("err.SD"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 		play_message_on_DPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		myFile.close();
 		while (true) {};
@@ -603,16 +574,16 @@ void write_on_sd_card(char* message) {
 	myFile = SD.open(fileName, FILE_WRITE);
 	if (myFile) {
 		myFile.println(message);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("write.SD"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 		myFile.close();
 	}
 	else {
 		//buzzer_sensor_activity(5, 400, 1000, 500);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("err.SD"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 		play_message_on_DPlayer(AUDIO_PROBLEMA_SCHEDA_MEMORIA);
 		myFile.close();
 		while (true) {};
@@ -635,27 +606,27 @@ void send_interrupt_to_all_attiny85() {
 	digitalWrite(_pin_interrupt_to_attiny85, HIGH);
 	delay(200);
 	digitalWrite(_pin_interrupt_to_attiny85, LOW);
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 	Serial.println(F("-Int-"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 }
 void check_batteries_max_level(float value) {
 	ii = 0;
 	while (ii < _numberOfBattery) {
 		// Serial.println(ii);
 		if (value >= storedBatteryValues[ii]) {
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 			/*Serial.print(F("if ")); Serial.print(value); Serial.print(F(" maggiore o uguale a ")); Serial.println(storedBatteryValues[ii]);
 			Serial.print(F("metto ")); Serial.print(value); Serial.println(F(" in batteryMaxLevel"));
 			 delay(1000);*/
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 			batteryMaxLevel = value;
 			ii++;
 		}
 		else {
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 			// Serial.print(F("mando ")); Serial.print(storedBatteryValues[ii]); Serial.println(F(" in funzione"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 			check_batteries_max_level(storedBatteryValues[ii]);
 		}
 	}
@@ -664,18 +635,18 @@ void check_batteries_min_level(float value) {
 	ii = 0;
 	while (ii < _numberOfBattery) {
 		if (value <= storedBatteryValues[ii]) {
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 			/*Serial.print(F("if ")); Serial.print(value); Serial.print(F(" maggiore o uguale a ")); Serial.println(storedBatteryValues[ii]);
 			Serial.print(F("metto ")); Serial.print(value); Serial.println(F(" in batteryMaxLevel"));
 			delay(1000);*/
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 			batteryMinLevel = value;
 			ii++;
 		}
 		else {
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 			// Serial.print(F("mando ")); Serial.print(storedBatteryValues[ii]); Serial.println(F(" in funzione"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 			check_batteries_min_level(storedBatteryValues[ii]);
 		}
 	}
@@ -688,17 +659,17 @@ void play_message_on_DPlayer(uint8_t messageCode) {
 	mySoftwareSerial.begin(9600);
 	delay(500);
 	if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 		Serial.println(F("Unable to begin:"));
 		Serial.println(F("1.Please recheck the connection!"));
 		Serial.println(F("2.Please insert the SD card!"));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 		//buzzer_sensor_activity(5, 2500, 80, 200);
 		while (true);
 	}
-#ifdef _DEBUG
+#if _DEBUG_FOR_SERIAL
 	Serial.println(F("DFPlayer Mini online."));
-#endif // _DEBUG
+#endif // _DEBUG_FOR_SERIAL
 	uint16_t volume = (30.00 / 1024.00) * analogRead(_pin_dfMiniPlayer_volume);
 	//Serial.println(volume);
 	myDFPlayer.volume(volume);  //Set volume value. From 0 to 30
@@ -706,7 +677,7 @@ void play_message_on_DPlayer(uint8_t messageCode) {
 	delay(5000);
 }
 bool is_predict_batteries_values_OK() {
-#ifdef _IS_ON_AI_TEST
+#if _IS_ON_AI_TEST
 	x[0] = 39.36f;
 	x[1] = 86.27f;
 	storedBatteryValues[0] = 1.91f;
@@ -724,27 +695,30 @@ bool is_predict_batteries_values_OK() {
 	forward();
 	for (int i = 0; i < 6; i++) {
 		y[i] = y[i] * 10.00f;
-#ifdef _SERIAL_AI
+#if _DEBUG_FOR_SERIAL
 		Serial.println(y[i]);
 		Serial.println(storedBatteryValues[i]);
-#endif // _SERIAL_AI
+#endif // _DEBUG_FOR_SERIAL
 	}
-	float mse = meanSquaredError(storedBatteryValues, y, numberOf_Y);
+	float mse = mean_squared_error(storedBatteryValues, y, numberOf_Y);
 	float observed_mean = mean_value(storedBatteryValues, numberOf_Y);
-#ifdef _SERIAL_AI
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("mse: ")); Serial.println(mse);
 	Serial.print(F("observed_mean: ")); Serial.println(observed_mean);
-#endif // _SERIAL_AI
-	uint16_t percentage = calculateErrorPercentage(mse, observed_mean);
-#ifdef _SERIAL_AI
+#endif // _DEBUG_FOR_SERIAL
+	uint16_t percentage = calculate_normalized_rmse_percentage(mse, observed_mean);
+#if _DEBUG_FOR_SERIAL
 	Serial.print(F("% :")); Serial.println(percentage);
-#endif // _SERIAL_AI
-	if (percentage < max_AI_error_percentage) { 
-		return true; }
-	else{ return false; }
+#endif // _DEBUG_FOR_SERIAL
+	if (percentage < max_AI_error_percentage) {
+		return true;
+	}
+	else { return false; }
 }
+#if _DEBUG_FOR_SERIAL
 int freeMemory() {
 	extern int __heap_start, * __brkval;
 	int v;
 	return (int)&v - (__brkval ? (int)__brkval : (int)&__heap_start);
 }
+#endif // _DEBUG_FOR_SERIAL

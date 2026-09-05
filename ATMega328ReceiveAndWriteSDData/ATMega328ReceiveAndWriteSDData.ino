@@ -65,12 +65,11 @@ bool _is_DPlayer_disable = false;
 char fileName[15] = {};
 const uint8_t numberOf_X = 2;
 const uint8_t numberOf_Y = 6;
+const float leaky_relu_alpha = 0.01f;
 float x[numberOf_X] = { 0.00 };
 float y[numberOf_Y] = { 0.00f };
-float normalized_observed_output[numberOf_Y] = { 0.00 };
-float normalized_predicted_output[numberOf_Y] = { 0.00 };
-float relu(float x) {
-	return (x > 0) ? x : 0;
+float leaky_relu(float value) {
+	return (value > 0.0f) ? value : leaky_relu_alpha * value;
 }
 void forward() {
 	int addr = 0;
@@ -89,7 +88,7 @@ void forward() {
 		//insert X bias
 		EEPROM.get(addr, data_from_eeprom);
 		Zk += data_from_eeprom;
-		h[k] = relu(Zk);
+		h[k] = leaky_relu(Zk);
 		addr += sizeof(float);
 	}
 	for (int j = 0; j < numberOf_Y; j++) {
@@ -106,24 +105,6 @@ void forward() {
 		addr += sizeof(float);
 	}
 }
-void normalizeArray(float* arr, float* normArr, int size) {
-	float minVal = arr[0];
-	float maxVal = arr[0];
-	// Trova il minimo e il massimo
-	for (int i = 1; i < size; i++) {
-		if (arr[i] < minVal) minVal = arr[i];
-		if (arr[i] > maxVal) maxVal = arr[i];
-	}
-	// Normalizza i valori
-	for (int i = 0; i < size; i++) {
-		if (maxVal != minVal) {
-			normArr[i] = (arr[i] - minVal) / (maxVal - minVal);
-		}
-		else {
-			normArr[i] = 0; // Evita divisione per zero nel caso di valori uguali
-		}
-	}
-}
 float meanSquaredError(const float* arr1, const float* arr2, int size) {
 	float sum = 0.0f;
 	for (int i = 0; i < size; ++i) {
@@ -134,33 +115,18 @@ float meanSquaredError(const float* arr1, const float* arr2, int size) {
 	// MSE = (1 / N) * Σ (diff^2)
 	return sum / size;
 }
-float overallMean(const float* arr1, const float* arr2, int size) {
+float mean_value(const float* data, int size) {
 	float sum = 0.0f;
-	// Sommiamo tutti gli elementi di entrambi gli array
 	for (int i = 0; i < size; ++i) {
-		sum += arr1[i] + arr2[i];
+		sum += data[i];
 	}
-	// La media complessiva è la somma divisa per il numero totale di elementi (2*size)
-	return sum / (2 * size);
+	return sum / size;
 }
-uint8_t calculateErrorPercentage2(float mse, float overallMean) {
-	float rms = sqrtf(mse);
-	float pct = (rms / overallMean) * 100.0f;
-	// debug
-	Serial.print("  mse        = "); Serial.println(mse, 4);
-	Serial.print("  overallMean= "); Serial.println(overallMean, 4);
-	Serial.print("  rms        = "); Serial.println(rms, 4);
-	Serial.print("  pct (f)    = "); Serial.println(pct, 4);
-
-	uint8_t errorPercentage = (uint8_t)pct;
-	Serial.print("  pct (u8)   = "); Serial.println(errorPercentage);
-	return errorPercentage;
-}
-uint16_t calculateErrorPercentage(float mse, float overallMean) {
+uint16_t calculateErrorPercentage(float mse, float reference_mean) {
 	// Calcola il Root Mean Squared Error (RMSE)
 	float rms = sqrtf(mse);
 	// Calcola la percentuale (tronca i decimali):
-	float pct = (rms / overallMean) * 100.0f;
+	float pct = (rms / reference_mean) * 100.0f;
 	return (uint16_t)pct;
 }
 void setup() {
@@ -607,10 +573,12 @@ void write_watts_and_ampere_on_sd_card() {
 	if (_is_card_writing_disable)return;
 	myFile = SD.open(fileName, FILE_WRITE);
 	if (myFile) {
-		myFile.print(F(";;;"));
+		myFile.print(F("watts;;"));
 		myFile.print(stored_watts, 2);
-		myFile.print(F(";"));
-		myFile.println(stored_ampere, 2);
+		myFile.println(F(";;"));
+		myFile.print(F("amps;;"));
+		myFile.print(stored_ampere, 2);
+		myFile.println(F(";;"));
 #ifdef _DEBUG
 		Serial.println(F("write.WA.SD"));
 #endif // _DEBUG
@@ -624,34 +592,6 @@ void write_watts_and_ampere_on_sd_card() {
 		myFile.close();
 		while (true) {};
 	}
-}
-void prepare_watts_sd_card_string(char* csv_text_layout) {
-	char watts[7];
-	dtostrf(stored_watts, 7, 2, watts);
-	strcpy(csv_text_layout, ";");
-	strcat(csv_text_layout, ";");
-	strcat(csv_text_layout, ";");
-	strcat(csv_text_layout, ";");
-	strcat(csv_text_layout, watts);
-	csv_text_layout[13] = '\0';
-#ifdef _DEBUG
-	Serial.print(F("csv_watts_layout: ")); Serial.println(csv_text_layout);
-#endif 
-}
-void prepare_ampere_sd_card_string(char* csv_text_layout) {
-	char amps[5];
-	dtostrf(stored_ampere, 5, 2, amps);
-	strcpy(csv_text_layout, ";");
-	strcat(csv_text_layout, ";");
-	strcat(csv_text_layout, ";");
-	strcat(csv_text_layout, ";");
-	strcat(csv_text_layout, ";");
-	strcat(csv_text_layout, amps);
-	csv_text_layout[12] = '\0';
-#ifdef _DEBUG
-	Serial.print("csv_amps_layout: "); Serial.println(csv_text_layout);
-#endif 
-}
 void write_on_sd_card(char* message) {
 	File myFile;
 	if (_is_card_writing_disable)return;
@@ -788,15 +728,13 @@ bool is_predict_batteries_values_OK() {
 		Serial.println(storedBatteryValues[i]);
 #endif // _SERIAL_AI
 	}
-	normalizeArray(storedBatteryValues, normalized_observed_output, numberOf_Y);
-	normalizeArray(y, normalized_predicted_output, numberOf_Y);
 	float mse = meanSquaredError(storedBatteryValues, y, numberOf_Y);
-	float overall_mean = overallMean(normalized_observed_output, normalized_predicted_output, numberOf_Y);
+	float observed_mean = mean_value(storedBatteryValues, numberOf_Y);
 #ifdef _SERIAL_AI
 	Serial.print(F("mse: ")); Serial.println(mse);
-	Serial.print(F("ov_mean")); Serial.println(overall_mean);
+	Serial.print(F("observed_mean: ")); Serial.println(observed_mean);
 #endif // _SERIAL_AI
-	uint16_t percentage = calculateErrorPercentage(mse, overall_mean);
+	uint16_t percentage = calculateErrorPercentage(mse, observed_mean);
 #ifdef _SERIAL_AI
 	Serial.print(F("% :")); Serial.println(percentage);
 #endif // _SERIAL_AI

@@ -411,13 +411,10 @@ bool is_number(const char* s) {
 	if (*s == '\0' || (*s == '.' && s[1] == '\0'))
 		return false;
 
-	// 3) validazione manuale: cifre e al più un ‘.’ e un ‘+’ in testa
+	// 3) validazione manuale: cifre e al più un punto decimale
 	const char* p = s;
 	bool has_dot = false;
 	bool has_digit = false;
-
-	if (*p == '+')
-		++p;
 
 	for (; *p; ++p) {
 		if (*p >= '0' && *p <= '9') {

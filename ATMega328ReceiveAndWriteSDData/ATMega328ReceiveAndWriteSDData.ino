@@ -449,26 +449,42 @@ float parse_battery_voltage(char* response) {
 	return atof(response);
 }
 void read_battery_response_from_serial(char* response) {
+	if (response == NULL) return;
+	response[0] = '\0';
+
 	SoftwareSerial softwareSerial(_pin_rx, 99);
 	softwareSerial.begin(600);
 	while (!softwareSerial);
-	delay(500);
-	//char trash[20]{};
-	char t;
-	if (softwareSerial.available() > 0) {
-		while (true) {
-			softwareSerial.readBytes(&t, 1);
-			if (t == '*') {
-				softwareSerial.readBytes(response, 6);
-				break;
+
+	const uint8_t expected_payload_length = 5;
+	const unsigned long frame_timeout_ms = 1200UL;
+	const unsigned long start_time_ms = millis();
+	bool is_frame_synchronized = false;
+	bool is_payload_too_long = false;
+	uint8_t received_length = 0;
+	while ((millis() - start_time_ms) < frame_timeout_ms) {
+		const int received_byte = softwareSerial.read();
+		if (received_byte < 0) continue;
+		if (received_byte == '*') {
+			if (is_frame_synchronized && !is_payload_too_long && received_length == expected_payload_length) {
+				response[received_length] = '\0';
+				return;
 			}
+			is_frame_synchronized = true;
+			is_payload_too_long = false;
+			received_length = 0;
+			continue;
 		}
-		//softwareSerial.readBytesUntil('*', trash, 20);
+		if (!is_frame_synchronized) continue;
+		if (received_length < expected_payload_length) {
+			response[received_length] = (char)received_byte;
+			received_length++;
+		}
+		else {
+			is_payload_too_long = true;
+		}
 	}
-	/*if (softwareSerial.available() > 0) {
-		softwareSerial.readBytes(response, 6);
-	}*/
-	response[5] = '\0';
+	response[0] = '\0';
 }
 void read_power_measurements_from_serial() {
 	stored_ampere = 0.00f;

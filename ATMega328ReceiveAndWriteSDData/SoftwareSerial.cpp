@@ -268,6 +268,11 @@ SoftwareSerial::~SoftwareSerial()
 
 void SoftwareSerial::setTX(uint8_t tx)
 {
+  _transmitBitMask = 0;
+  _transmitPortRegister = NULL;
+  if (tx >= NUM_DIGITAL_PINS)
+    return;
+
   // First write, then set output. If we do this the other way around,
   // the pin would be output low for a short while before switching to
   // output high. Now, it is input with pullup for a short while, which
@@ -414,7 +419,7 @@ int SoftwareSerial::available()
 
 size_t SoftwareSerial::write(uint8_t b)
 {
-  if (_tx_delay == 0) {
+  if (_tx_delay == 0 || _transmitPortRegister == NULL || _transmitBitMask == 0) {
     setWriteError();
     return 0;
   }

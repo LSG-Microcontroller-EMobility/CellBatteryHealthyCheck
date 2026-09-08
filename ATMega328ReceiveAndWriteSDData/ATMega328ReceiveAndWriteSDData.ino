@@ -560,12 +560,11 @@ void write_power_measurements_to_sd_card() {
 	if (_is_card_writing_disable)return;
 	myFile = SD.open(fileName, FILE_WRITE);
 	if (myFile) {
-		myFile.print(F("watts;;"));
+		// Keep power measurements separate from the battery voltage column.
+		myFile.print(F(";;;"));
 		myFile.print(stored_watts, 2);
-		myFile.println(F(";;"));
-		myFile.print(F("amps;;"));
-		myFile.print(stored_ampere, 2);
-		myFile.println(F(";;"));
+		myFile.print(F(";"));
+		myFile.println(stored_ampere, 2);
 #if _DEBUG_FOR_SERIAL
 		Serial.println(F("write.WA.SD"));
 #endif // _DEBUG_FOR_SERIAL

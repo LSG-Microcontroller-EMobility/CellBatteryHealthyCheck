@@ -3,7 +3,7 @@
  Created:	3/3/2020 1:09:44 AM
  Author:	luigi.santagada
 */
-#include <SoftwareSerial.h>
+#include "SoftwareSerial.h"
 float volatile measure = 0.00f;
 //Used for compatibility
 const uint8_t idMessageCounter = 0;

@@ -169,8 +169,10 @@
       <FileType>CppCode</FileType>
       <DeploymentContent>true</DeploymentContent>
     </ClCompile>
+    <ClCompile Include="SoftwareSerial.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SoftwareSerial.h" />
     <ClInclude Include="__vm\.Attiny85CheckBattery.vsarduino.h" />
     <ClInclude Include="__vm\.Attiny85Solution.vsarduino.h" />
   </ItemGroup>

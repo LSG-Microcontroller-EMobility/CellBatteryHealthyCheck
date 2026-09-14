@@ -2,5 +2,5 @@
     "board": "arduino:avr:nano",
     "port": "/dev/ttyS0",
     "configuration": "cpu=atmega328",
-    "sketch": "ATMega328ReceiveAndWriteSDData/ATMega328ReceiveAndWriteSDData.ino"
+    "sketch": "72Volts-Predictive-Vehicle-Battery-AI-Monitor/72Volts-Predictive-Vehicle-Battery-AI-Monitor.ino"
 }

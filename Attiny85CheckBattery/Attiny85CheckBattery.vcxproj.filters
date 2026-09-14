@@ -16,6 +16,9 @@
     <Filter Include="localLibraries">
       <UniqueIdentifier>{D65F7A95-7E9D-4DB8-AE37-3A7C5C670D5B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="documents">
+      <UniqueIdentifier>{225201a3-a8bd-4731-b816-3415e5aac9ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.Attiny85Solution.vsarduino.h">
@@ -36,7 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="fuse.png">
-      <Filter>Resource Files</Filter>
+      <Filter>documents</Filter>
     </Image>
   </ItemGroup>
 </Project>

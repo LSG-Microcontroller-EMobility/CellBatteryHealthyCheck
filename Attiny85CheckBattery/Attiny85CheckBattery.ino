@@ -39,7 +39,7 @@ void loop() {
 	delay(100);
 }
 void configure_adc() {
-	ADMUX = (1 << REFS0);              // Usa AVcc come riferimento
+	ADMUX = (1 << REFS0);              // Usa AREF come riferimento
 	ADCSRA = (1 << ADEN)               // Abilita ADC
 		| (1 << ADPS2) | (1 << ADPS1); // Imposta prescaler a 64
 }

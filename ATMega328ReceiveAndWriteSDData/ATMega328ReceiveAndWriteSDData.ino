@@ -451,11 +451,9 @@ float parse_battery_voltage(char* response) {
 void read_battery_response_from_serial(char* response) {
 	if (response == NULL) return;
 	response[0] = '\0';
-
 	SoftwareSerial softwareSerial(_pin_rx, 99);
 	softwareSerial.begin(600);
 	while (!softwareSerial);
-
 	const uint8_t expected_payload_length = 5;
 	const unsigned long frame_timeout_ms = 1200UL;
 	const unsigned long start_time_ms = millis();
